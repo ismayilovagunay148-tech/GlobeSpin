@@ -10,7 +10,6 @@ import UIKit
 class SplashController: BaseController {
     
     private let viewModel: SplashViewModel
-    private let coordinator: AppCoordinator
 
     private let gradientLayer = CAGradientLayer()
 
@@ -59,9 +58,8 @@ class SplashController: BaseController {
         return b
     }()
 
-    init(viewModel: SplashViewModel, coordinator: AppCoordinator) {
+    init(viewModel: SplashViewModel) {
         self.viewModel = viewModel
-        self.coordinator = coordinator
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -171,7 +169,6 @@ class SplashController: BaseController {
             }
         }
 
-        coordinator.showLogin()
+        viewModel.navigateToLogin()
     }
 }
-
