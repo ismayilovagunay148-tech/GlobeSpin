@@ -18,7 +18,6 @@ final class SignUpViewModel {
     }
     
     func signUpWithEmail(fullName: String, email: String, password: String, confirmPassword: String) {
-        // Validate full name
         if fullName.isEmpty {
             error?("Please enter your full name")
             return
@@ -29,7 +28,6 @@ final class SignUpViewModel {
             return
         }
         
-        // Validate email
         if email.isEmpty {
             error?("Please enter your email address")
             return
@@ -40,7 +38,6 @@ final class SignUpViewModel {
             return
         }
         
-        // Validate password
         if password.isEmpty {
             error?("Please enter a password")
             return
@@ -51,7 +48,6 @@ final class SignUpViewModel {
             return
         }
         
-        // Validate confirm password
         if confirmPassword.isEmpty {
             error?("Please confirm your password")
             return

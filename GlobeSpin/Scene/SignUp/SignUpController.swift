@@ -183,15 +183,39 @@ class SignUpController: BaseController {
         return button
     }()
     
-    private let termsCheckbox: UIButton = {
-        let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
-        button.setImage(UIImage(systemName: "circle", withConfiguration: config), for: .normal)
-        button.setImage(UIImage(systemName: "circle.inset.filled", withConfiguration: config), for: .selected)
+    private lazy var termsCheckbox: UIButton = {
+        let button = UIButton(type: .custom)
         button.tintColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
+        
+        let normalImage = self.createCircleImage(filled: false)
+        let selectedImage = self.createCircleImage(filled: true)
+        
+        button.setImage(normalImage, for: .normal)
+        button.setImage(selectedImage, for: .selected)
+        
         return button
     }()
+    
+    private func createCircleImage(filled: Bool) -> UIImage {
+        let size = CGSize(width: 24, height: 24)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        return renderer.image { context in
+            let rect = CGRect(origin: .zero, size: size)
+            let circlePath = UIBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
+            
+            UIColor.systemBlue.setStroke()
+            circlePath.lineWidth = 2
+            circlePath.stroke()
+            
+            if filled {
+                let innerCircle = UIBezierPath(ovalIn: rect.insetBy(dx: 6, dy: 6))
+                UIColor.systemBlue.setFill()
+                innerCircle.fill()
+            }
+        }
+    }
     
     private let termsLabel: UILabel = {
         let label = UILabel()
@@ -268,23 +292,12 @@ class SignUpController: BaseController {
     }
     
     override func configureConstraints() {
-        view.addSubview(iconContainer)
         iconContainer.addSubview(iconImageView)
-        view.addSubview(titleLabel)
-        view.addSubview(subtitleLabel)
-        view.addSubview(fullNameLabel)
-        view.addSubview(fullNameTextField)
-        view.addSubview(emailLabel)
-        view.addSubview(emailTextField)
-        view.addSubview(passwordLabel)
-        view.addSubview(passwordTextField)
-        view.addSubview(confirmPasswordLabel)
-        view.addSubview(confirmPasswordTextField)
-        view.addSubview(termsCheckbox)
-        view.addSubview(termsLabel)
-        view.addSubview(signUpButton)
-        view.addSubview(loginTextLabel)
-        
+        [iconContainer, titleLabel, subtitleLabel, fullNameLabel, fullNameTextField,
+         emailLabel, emailTextField, passwordLabel, passwordTextField,
+         confirmPasswordLabel, confirmPasswordTextField, termsCheckbox,
+         termsLabel, signUpButton, loginTextLabel].forEach { view.addSubview($0) }
+
         NSLayoutConstraint.activate([
             iconContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             iconContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),

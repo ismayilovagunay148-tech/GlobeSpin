@@ -221,7 +221,6 @@ class RouletteController: BaseController {
     }
     
     @objc private func spinButtonTapped() {
-        // Add spin animation
         UIView.animate(withDuration: 0.1, animations: {
             self.spinButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         }) { _ in
@@ -230,7 +229,6 @@ class RouletteController: BaseController {
             }
         }
         
-        // Rotate globe animation
         let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotation.fromValue = 0
         rotation.toValue = Double.pi * 4
