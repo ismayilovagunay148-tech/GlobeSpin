@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		A93A95222ED5F85B001BDA35 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = A93A95212ED5F85B001BDA35 /* Alamofire */; };
-		A984F61D2ED8134D001146BB /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = A984F61C2ED8134D001146BB /* SDWebImage */; };
 		A984F6482EDB581B001146BB /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = A984F6472EDB581B001146BB /* FirebaseAI */; };
 		A984F64A2EDB581B001146BB /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = A984F6492EDB581B001146BB /* FirebaseAILogic */; };
 		A984F64C2EDB581B001146BB /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A984F64B2EDB581B001146BB /* FirebaseAnalytics */; };
@@ -104,7 +103,6 @@
 				A984F6742EDB581B001146BB /* FirebaseStorage in Frameworks */,
 				A984F64A2EDB581B001146BB /* FirebaseAILogic in Frameworks */,
 				A984F64E2EDB581B001146BB /* FirebaseAnalyticsCore in Frameworks */,
-				A984F61D2ED8134D001146BB /* SDWebImage in Frameworks */,
 				A984F66C2EDB581B001146BB /* FirebaseMLModelDownloader in Frameworks */,
 				A984F6502EDB581B001146BB /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				A984F6582EDB581B001146BB /* FirebaseAuthCombine-Community in Frameworks */,
@@ -188,7 +186,6 @@
 			name = GlobeSpin;
 			packageProductDependencies = (
 				A93A95212ED5F85B001BDA35 /* Alamofire */,
-				A984F61C2ED8134D001146BB /* SDWebImage */,
 				A984F6472EDB581B001146BB /* FirebaseAI */,
 				A984F6492EDB581B001146BB /* FirebaseAILogic */,
 				A984F64B2EDB581B001146BB /* FirebaseAnalytics */,
@@ -300,7 +297,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				A93A95202ED5F85B001BDA35 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				A984F61B2ED8134D001146BB /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				A984F6462EDB581A001146BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				A984F67B2EDB610F001146BB /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
@@ -670,14 +666,6 @@
 				minimumVersion = 5.10.2;
 			};
 		};
-		A984F61B2ED8134D001146BB /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.21.3;
-			};
-		};
 		A984F6462EDB581A001146BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -701,11 +689,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A93A95202ED5F85B001BDA35 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		A984F61C2ED8134D001146BB /* SDWebImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A984F61B2ED8134D001146BB /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImage;
 		};
 		A984F6472EDB581B001146BB /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;

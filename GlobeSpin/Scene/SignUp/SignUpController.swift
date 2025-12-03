@@ -60,20 +60,10 @@ class SignUpController: BaseController {
     private let fullNameTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Enter your full name"
-        tf.borderStyle = .none
+        tf.borderStyle = .roundedRect
         tf.backgroundColor = UIColor.systemGray6
         tf.font = .systemFont(ofSize: 15)
         tf.autocapitalizationType = .words
-        tf.layer.cornerRadius = 12
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = UIColor.systemGray4.cgColor
-        
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.leftView = paddingView
-        tf.leftViewMode = .always
-        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.rightViewMode = .always
-        
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -90,21 +80,11 @@ class SignUpController: BaseController {
     private let emailTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Enter your email address"
-        tf.borderStyle = .none
+        tf.borderStyle = .roundedRect
         tf.backgroundColor = UIColor.systemGray6
         tf.font = .systemFont(ofSize: 15)
         tf.autocapitalizationType = .none
         tf.keyboardType = .emailAddress
-        tf.layer.cornerRadius = 12
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = UIColor.systemGray4.cgColor
-        
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.leftView = paddingView
-        tf.leftViewMode = .always
-        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.rightViewMode = .always
-        
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -121,18 +101,10 @@ class SignUpController: BaseController {
     private let passwordTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Enter your password"
-        tf.borderStyle = .none
+        tf.borderStyle = .roundedRect
         tf.backgroundColor = UIColor.systemGray6
         tf.font = .systemFont(ofSize: 15)
         tf.isSecureTextEntry = true
-        tf.layer.cornerRadius = 12
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = UIColor.systemGray4.cgColor
-        
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.leftView = paddingView
-        tf.leftViewMode = .always
-        
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -158,18 +130,10 @@ class SignUpController: BaseController {
     private let confirmPasswordTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Confirm your password"
-        tf.borderStyle = .none
+        tf.borderStyle = .roundedRect
         tf.backgroundColor = UIColor.systemGray6
         tf.font = .systemFont(ofSize: 15)
         tf.isSecureTextEntry = true
-        tf.layer.cornerRadius = 12
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = UIColor.systemGray4.cgColor
-        
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.leftView = paddingView
-        tf.leftViewMode = .always
-        
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -185,50 +149,19 @@ class SignUpController: BaseController {
     
     private lazy var termsCheckbox: UIButton = {
         let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName: "circle"), for: .normal)
+        button.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .selected)
         button.tintColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
-        
-        let normalImage = self.createCircleImage(filled: false)
-        let selectedImage = self.createCircleImage(filled: true)
-        
-        button.setImage(normalImage, for: .normal)
-        button.setImage(selectedImage, for: .selected)
-        
         return button
     }()
     
-    private func createCircleImage(filled: Bool) -> UIImage {
-        let size = CGSize(width: 24, height: 24)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        
-        return renderer.image { context in
-            let rect = CGRect(origin: .zero, size: size)
-            let circlePath = UIBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
-            
-            UIColor.systemBlue.setStroke()
-            circlePath.lineWidth = 2
-            circlePath.stroke()
-            
-            if filled {
-                let innerCircle = UIBezierPath(ovalIn: rect.insetBy(dx: 6, dy: 6))
-                UIColor.systemBlue.setFill()
-                innerCircle.fill()
-            }
-        }
-    }
-    
     private let termsLabel: UILabel = {
         let label = UILabel()
+        label.text = "I agree to the Terms & Privacy"
         label.font = .systemFont(ofSize: 14)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
-        
-        let text = "I agree to the Terms & Privacy"
-        let attributedString = NSMutableAttributedString(string: text)
-        let range = (text as NSString).range(of: "Terms & Privacy")
-        attributedString.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: range)
-        label.attributedText = attributedString
-        
         return label
     }()
     
@@ -245,18 +178,11 @@ class SignUpController: BaseController {
     
     private let loginTextLabel: UILabel = {
         let label = UILabel()
+        label.text = "Already have an account? Log In"
         label.font = .systemFont(ofSize: 14)
         label.textColor = .label
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
-        
-        let text = "Already have an account? Log In"
-        let attributedString = NSMutableAttributedString(string: text)
-        let range = (text as NSString).range(of: "Log In")
-        attributedString.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: range)
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 14, weight: .semibold), range: range)
-        label.attributedText = attributedString
-        
         return label
     }()
     

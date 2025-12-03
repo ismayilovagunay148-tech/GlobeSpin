@@ -4,7 +4,7 @@
 //
 //  Created by Gunay Ismayilova on 28.11.25.
 //
-             
+
 import UIKit
 
 class LoginController: BaseController {
@@ -106,26 +106,11 @@ class LoginController: BaseController {
         let tf = UITextField()
         tf.placeholder = "Email"
         tf.font = .systemFont(ofSize: 15, weight: .regular)
-        tf.borderStyle = .none
+        tf.borderStyle = .roundedRect
         tf.backgroundColor = .white
-        tf.layer.cornerRadius = 12
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.5).cgColor
         tf.autocapitalizationType = .none
         tf.keyboardType = .emailAddress
         tf.autocorrectionType = .no
-        
-        tf.attributedPlaceholder = NSAttributedString(
-            string: "Email",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray]
-        )
-        
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.leftView = paddingView
-        tf.leftViewMode = .always
-        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.rightViewMode = .always
-        
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -134,28 +119,16 @@ class LoginController: BaseController {
         let tf = UITextField()
         tf.placeholder = "Password"
         tf.font = .systemFont(ofSize: 15, weight: .regular)
-        tf.borderStyle = .none
+        tf.borderStyle = .roundedRect
         tf.backgroundColor = .white
-        tf.layer.cornerRadius = 12
-        tf.layer.borderWidth = 1
-        tf.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.5).cgColor
         tf.isSecureTextEntry = true
         tf.autocapitalizationType = .none
         tf.autocorrectionType = .no
         
-        tf.attributedPlaceholder = NSAttributedString(
-            string: "Password",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray]
-        )
-        
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: tf.frame.height))
-        tf.leftView = paddingView
-        tf.leftViewMode = .always
-        
         let eyeButton = UIButton(type: .system)
         eyeButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
         eyeButton.tintColor = .gray
-        eyeButton.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        eyeButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
         eyeButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         tf.rightView = eyeButton
         tf.rightViewMode = .always
@@ -178,25 +151,9 @@ class LoginController: BaseController {
     
     private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
-        
-        let text = "Don't have an account? Sign Up"
-        let attributedString = NSMutableAttributedString(string: text)
-        
-        let normalAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13, weight: .regular),
-            .foregroundColor: UIColor.black
-        ]
-        
-        let boldAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13, weight: .bold),
-            .foregroundColor: UIColor.black,
-            .underlineStyle: NSUnderlineStyle.single.rawValue
-        ]
-        
-        attributedString.addAttributes(normalAttributes, range: NSRange(location: 0, length: 23))
-        attributedString.addAttributes(boldAttributes, range: NSRange(location: 23, length: 7))
-        
-        button.setAttributedTitle(attributedString, for: .normal)
+        button.setTitle("Don't have an account? Sign Up", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 13)
         button.addTarget(self, action: #selector(signUpTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
