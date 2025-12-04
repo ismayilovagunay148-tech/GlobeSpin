@@ -17,7 +17,7 @@ class SignUpCoordinator: Coordinator {
     func start() {
         let vm = SignUpViewModel(coordinator: self)
         let vc = SignUpController(viewModel: vm)
-        navigationController.pushViewController(vc, animated: true)
+        navigationController.show(vc, sender: nil)
     }
     
     func showRoulette() {

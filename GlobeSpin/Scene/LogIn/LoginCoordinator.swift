@@ -17,7 +17,7 @@ class LoginCoordinator: Coordinator {
     func start() {
         let vm = LoginViewModel(coordinator: self)
         let vc = LoginController(viewModel: vm)
-        navigationController.pushViewController(vc, animated: true)
+        navigationController.show(vc, sender: nil)
     }
     
     func showSignUp() {
