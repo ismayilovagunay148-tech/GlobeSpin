@@ -24,6 +24,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if AuthService.shared.isUserLoggedIn() {
             let rouletteCoordinator = RouletteCoordinator(navigationController: navigationController)
+            //let splashCoordinator = SplashCoordinator(navigationController: navigationController)
+
             coordinator = rouletteCoordinator
             rouletteCoordinator.start()
         } else {

@@ -17,7 +17,7 @@ class SplashCoordinator: Coordinator {
     func start() {
         let vm = SplashViewModel(coordinator: self)
         let vc = SplashController(viewModel: vm)
-        navigationController.setViewControllers([vc], animated: false)
+        navigationController.show(vc, sender: nil)
     }
     
     func showLogin() {

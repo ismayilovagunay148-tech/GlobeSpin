@@ -167,7 +167,7 @@ class SignUpController: BaseController {
     
     private let signUpButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Sign Up", for: .normal)
+        button.setTitle("SignUp", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .systemBlue
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
@@ -178,7 +178,7 @@ class SignUpController: BaseController {
     
     private let loginTextLabel: UILabel = {
         let label = UILabel()
-        label.text = "Already have an account? Log In"
+        label.text = "Already have an account? LogIn"
         label.font = .systemFont(ofSize: 14)
         label.textColor = .label
         label.textAlignment = .center

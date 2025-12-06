@@ -10,16 +10,26 @@ import UIKit
 class SplashController: BaseController {
     
     private let viewModel: SplashViewModel
-
     private let gradientLayer = CAGradientLayer()
 
-    private let circleContainer: UIView = {
+    private let globeIcon: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFit
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        let cfg = UIImage.SymbolConfiguration(pointSize: 100, weight: .light)
+        iv.image = UIImage(systemName: "globe.americas.fill", withConfiguration: cfg)
+        iv.tintColor = .white
+        return iv
+    }()
+    
+    private let globeCircle: UIView = {
         let v = UIView()
+        v.backgroundColor = UIColor.white.withAlphaComponent(0.15)
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
 
-    private let outerCircle: UIView = {
+    private let outerRing: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
         v.layer.borderWidth = 3
@@ -28,7 +38,7 @@ class SplashController: BaseController {
         return v
     }()
 
-    private let innerCircle: UIView = {
+    private let innerRing: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
         v.layer.borderWidth = 4
@@ -43,6 +53,9 @@ class SplashController: BaseController {
         l.font = .systemFont(ofSize: 32, weight: .bold)
         l.textColor = .white
         l.textAlignment = .center
+        l.numberOfLines = 0
+        l.adjustsFontSizeToFitWidth = true
+        l.minimumScaleFactor = 0.5
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()
@@ -54,6 +67,7 @@ class SplashController: BaseController {
         b.backgroundColor = UIColor(red: 1, green: 0.42, blue: 0.42, alpha: 1)
         b.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         b.layer.cornerRadius = 25
+        b.clipsToBounds = true
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
@@ -63,7 +77,9 @@ class SplashController: BaseController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) not implemented") }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) not implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,8 +94,9 @@ class SplashController: BaseController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
-        outerCircle.layer.cornerRadius = outerCircle.bounds.width / 2
-        innerCircle.layer.cornerRadius = innerCircle.bounds.width / 2
+        outerRing.layer.cornerRadius = outerRing.bounds.width / 2
+        innerRing.layer.cornerRadius = innerRing.bounds.width / 2
+        globeCircle.layer.cornerRadius = globeCircle.bounds.width / 2
     }
 
     override func configureUI() {
@@ -88,34 +105,38 @@ class SplashController: BaseController {
     }
 
     override func configureConstraints() {
-        view.addSubview(circleContainer)
-        view.addSubview(titleLabel)
-        view.addSubview(travelButton)
-        circleContainer.addSubview(outerCircle)
-        circleContainer.addSubview(innerCircle)
+        [outerRing, innerRing, globeCircle, globeIcon, titleLabel, travelButton].forEach {
+            view.addSubview($0)
+        }
 
         NSLayoutConstraint.activate([
-            circleContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            circleContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -80),
-            circleContainer.widthAnchor.constraint(equalToConstant: 200),
-            circleContainer.heightAnchor.constraint(equalToConstant: 200),
+            outerRing.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            outerRing.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -80),
+            outerRing.widthAnchor.constraint(equalToConstant: 200),
+            outerRing.heightAnchor.constraint(equalToConstant: 200),
 
-            outerCircle.centerXAnchor.constraint(equalTo: circleContainer.centerXAnchor),
-            outerCircle.centerYAnchor.constraint(equalTo: circleContainer.centerYAnchor),
-            outerCircle.widthAnchor.constraint(equalToConstant: 200),
-            outerCircle.heightAnchor.constraint(equalToConstant: 200),
+            innerRing.centerXAnchor.constraint(equalTo: outerRing.centerXAnchor),
+            innerRing.centerYAnchor.constraint(equalTo: outerRing.centerYAnchor),
+            innerRing.widthAnchor.constraint(equalToConstant: 160),
+            innerRing.heightAnchor.constraint(equalToConstant: 160),
+            
+            globeCircle.centerXAnchor.constraint(equalTo: outerRing.centerXAnchor),
+            globeCircle.centerYAnchor.constraint(equalTo: outerRing.centerYAnchor),
+            globeCircle.widthAnchor.constraint(equalToConstant: 140),
+            globeCircle.heightAnchor.constraint(equalToConstant: 140),
+            
+            globeIcon.centerXAnchor.constraint(equalTo: globeCircle.centerXAnchor),
+            globeIcon.centerYAnchor.constraint(equalTo: globeCircle.centerYAnchor),
+            globeIcon.widthAnchor.constraint(equalToConstant: 100),
+            globeIcon.heightAnchor.constraint(equalToConstant: 100),
 
-            innerCircle.centerXAnchor.constraint(equalTo: circleContainer.centerXAnchor),
-            innerCircle.centerYAnchor.constraint(equalTo: circleContainer.centerYAnchor),
-            innerCircle.widthAnchor.constraint(equalToConstant: 160),
-            innerCircle.heightAnchor.constraint(equalToConstant: 160),
+            titleLabel.topAnchor.constraint(equalTo: outerRing.bottomAnchor, constant: 50),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
 
-            titleLabel.topAnchor.constraint(equalTo: circleContainer.bottomAnchor, constant: 40),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-
-            travelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 80),
-            travelButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -80),
+            travelButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            travelButton.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 60),
+            travelButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -60),
             travelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -60),
             travelButton.heightAnchor.constraint(equalToConstant: 50)
         ])
@@ -137,7 +158,7 @@ class SplashController: BaseController {
         rotation.toValue = Double.pi * 2
         rotation.duration = 8
         rotation.repeatCount = .infinity
-        outerCircle.layer.add(rotation, forKey: "rotation")
+        outerRing.layer.add(rotation, forKey: "rotation")
 
         let pulse = CABasicAnimation(keyPath: "transform.scale")
         pulse.fromValue = 1
@@ -145,7 +166,7 @@ class SplashController: BaseController {
         pulse.duration = 2
         pulse.autoreverses = true
         pulse.repeatCount = .infinity
-        innerCircle.layer.add(pulse, forKey: "pulse")
+        innerRing.layer.add(pulse, forKey: "pulse")
 
         titleLabel.alpha = 0
         UIView.animate(withDuration: 1, delay: 0.5) {

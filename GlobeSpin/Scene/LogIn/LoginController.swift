@@ -43,15 +43,13 @@ class LoginController: BaseController {
     
     private lazy var globeImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.backgroundColor = UIColor(red: 0.2, green: 0.3, blue: 0.35, alpha: 1.0)
         iv.layer.cornerRadius = 16
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         
-        let config = UIImage.SymbolConfiguration(pointSize: 80, weight: .light)
-        iv.image = UIImage(systemName: "globe.americas.fill", withConfiguration: config)
-        iv.tintColor = UIColor(red: 0.4, green: 0.7, blue: 0.7, alpha: 1.0)
+        iv.image = UIImage(named: "globe")
         
         return iv
     }()
@@ -139,7 +137,7 @@ class LoginController: BaseController {
     
     private lazy var loginButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Log In", for: .normal)
+        button.setTitle("LogIn", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .systemBlue
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
@@ -151,7 +149,7 @@ class LoginController: BaseController {
     
     private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Don't have an account? Sign Up", for: .normal)
+        button.setTitle("Don't have an account? SignUp", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 13)
         button.addTarget(self, action: #selector(signUpTapped), for: .touchUpInside)
@@ -190,7 +188,7 @@ class LoginController: BaseController {
             contentStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
             contentStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             
-            globeImageView.heightAnchor.constraint(equalToConstant: 150),
+            globeImageView.heightAnchor.constraint(equalToConstant: 200),
             
             appleButton.heightAnchor.constraint(equalToConstant: 50),
             googleButton.heightAnchor.constraint(equalToConstant: 50),

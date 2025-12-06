@@ -14,7 +14,7 @@ final class LoginViewModel {
     
     var error: ((String) -> Void)?
     var loading: ((Bool) -> Void)?
-    
+
     init(coordinator: LoginCoordinator) {
         self.coordinator = coordinator
     }
