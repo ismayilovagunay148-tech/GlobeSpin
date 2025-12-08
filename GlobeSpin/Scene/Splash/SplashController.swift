@@ -135,10 +135,10 @@ class SplashController: BaseController {
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
 
             travelButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            travelButton.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 60),
-            travelButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -60),
+            travelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 45),
+            travelButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -45),
             travelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -60),
-            travelButton.heightAnchor.constraint(equalToConstant: 50)
+            travelButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
 

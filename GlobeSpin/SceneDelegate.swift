@@ -19,22 +19,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
                 
         window = UIWindow(windowScene: windowScene)
-        
-        let navigationController = UINavigationController()
-        
+                
         if AuthService.shared.isUserLoggedIn() {
-            let rouletteCoordinator = RouletteCoordinator(navigationController: navigationController)
-            //let splashCoordinator = SplashCoordinator(navigationController: navigationController)
-
-            coordinator = rouletteCoordinator
-            rouletteCoordinator.start()
+            let tabBatController = TabBarController()
+            window?.rootViewController = tabBatController
         } else {
+            let navigationController = UINavigationController()
             let splashCoordinator = SplashCoordinator(navigationController: navigationController)
             coordinator = splashCoordinator
             splashCoordinator.start()
+            window?.rootViewController = navigationController
         }
         
-        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
         
     }

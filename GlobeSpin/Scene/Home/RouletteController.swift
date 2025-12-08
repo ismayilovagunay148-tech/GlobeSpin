@@ -11,22 +11,12 @@ class RouletteController: BaseController {
     
     private let viewModel: RouletteViewModel
     
-    private let scrollView: UIScrollView = {
-        let sv = UIScrollView()
-        sv.translatesAutoresizingMaskIntoConstraints = false
-        return sv
-    }()
-    
-    private let contentView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+    private let gradientLayer = CAGradientLayer()
     
     private let headerLabel: UILabel = {
         let label = UILabel()
         label.text = "Travel Roulette+"
-        label.font = .systemFont(ofSize: 20, weight: .semibold)
+        label.font = .systemFont(ofSize: 22, weight: .semibold)
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -35,7 +25,7 @@ class RouletteController: BaseController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Where to next?"
-        label.font = .systemFont(ofSize: 32, weight: .bold)
+        label.font = .systemFont(ofSize: 34, weight: .bold)
         label.textColor = .black
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -45,8 +35,8 @@ class RouletteController: BaseController {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Tap the button to discover your next\nadventure"
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.textColor = UIColor.black.withAlphaComponent(0.6)
         label.textAlignment = .center
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -57,62 +47,50 @@ class RouletteController: BaseController {
         let view = UIView()
         view.backgroundColor = UIColor(red: 1.0, green: 0.92, blue: 0.8, alpha: 1.0)
         view.layer.cornerRadius = 20
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOffset = CGSize(width: 0, height: 4)
+        view.layer.shadowRadius = 10
+        view.layer.shadowOpacity = 0.08
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let globeImageView: UIImageView = {
         let iv = UIImageView()
-        let config = UIImage.SymbolConfiguration(pointSize: 150, weight: .regular)
+        let config = UIImage.SymbolConfiguration(pointSize: 180, weight: .regular)
         iv.image = UIImage(systemName: "globe.americas.fill", withConfiguration: config)
-        iv.tintColor = UIColor(red: 0.2, green: 0.6, blue: 0.8, alpha: 1.0)
+        iv.tintColor = UIColor(red: 0.4, green: 0.7, blue: 0.85, alpha: 1.0)
         iv.contentMode = .scaleAspectFit
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
     
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = UIColor(red: 0.4, green: 0.7, blue: 0.85, alpha: 1.0)
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+    
     private let spinButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("🎲  Spin the Globe", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(red: 1.0, green: 0.45, blue: 0.35, alpha: 1.0)
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        button.layer.cornerRadius = 25
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let tabBarContainer: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor(red: 0.85, green: 0.92, blue: 0.95, alpha: 1.0)
-        view.layer.cornerRadius = 25
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let spinTabButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("🎯 Spin", for: .normal)
-        button.setTitleColor(UIColor(red: 1.0, green: 0.45, blue: 0.35, alpha: 1.0), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let tripsTabButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("♥ My Trips", for: .normal)
-        button.setTitleColor(.gray, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .regular)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let profileTabButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("👤 Profile", for: .normal)
-        button.setTitleColor(.gray, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .regular)
+        
+        var config = UIButton.Configuration.filled()
+        config.baseBackgroundColor = UIColor(red: 1.0, green: 0.45, blue: 0.35, alpha: 1.0)
+        config.baseForegroundColor = .white
+        config.cornerStyle = .capsule
+        config.contentInsets = NSDirectionalEdgeInsets(top: 18, leading: 32, bottom: 18, trailing: 32)
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 18, weight: .semibold)
+        config.attributedTitle = AttributedString("🌍 Spin the Globe", attributes: container)
+        
+        button.configuration = config
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.shadowRadius = 10
+        button.layer.shadowOpacity = 0.15
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -126,96 +104,79 @@ class RouletteController: BaseController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupGradient()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        gradientLayer.frame = view.bounds
+    }
+    
     override func configureUI() {
-        view.backgroundColor = UIColor(red: 0.53, green: 0.81, blue: 0.92, alpha: 1.0)
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         spinButton.addTarget(self, action: #selector(spinButtonTapped), for: .touchUpInside)
-        spinTabButton.addTarget(self, action: #selector(spinTabTapped), for: .touchUpInside)
-        tripsTabButton.addTarget(self, action: #selector(tripsTabTapped), for: .touchUpInside)
-        profileTabButton.addTarget(self, action: #selector(profileTabTapped), for: .touchUpInside)
+    }
+    
+    private func setupGradient() {
+        gradientLayer.colors = [
+            UIColor(red: 0.53, green: 0.81, blue: 0.92, alpha: 1.0).cgColor,
+            UIColor(red: 0.98, green: 0.87, blue: 0.72, alpha: 1.0).cgColor
+        ]
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
+        view.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     override func configureConstraints() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
+        [headerLabel, titleLabel, subtitleLabel, globeContainer, spinButton].forEach {
+            view.addSubview($0)
+        }
         
-        contentView.addSubview(headerLabel)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(subtitleLabel)
-        contentView.addSubview(globeContainer)
         globeContainer.addSubview(globeImageView)
-        contentView.addSubview(spinButton)
-        
-        view.addSubview(tabBarContainer)
-        tabBarContainer.addSubview(spinTabButton)
-        tabBarContainer.addSubview(tripsTabButton)
-        tabBarContainer.addSubview(profileTabButton)
+        globeContainer.addSubview(loadingIndicator)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: tabBarContainer.topAnchor),
+            headerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            headerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            headerLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 60),
-            headerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            
-            titleLabel.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 40),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            titleLabel.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 30),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
-            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            subtitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
-            globeContainer.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 32),
-            globeContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
-            globeContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
+            globeContainer.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 25),
+            globeContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            globeContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             globeContainer.heightAnchor.constraint(equalTo: globeContainer.widthAnchor, multiplier: 1.0),
             
             globeImageView.centerXAnchor.constraint(equalTo: globeContainer.centerXAnchor),
             globeImageView.centerYAnchor.constraint(equalTo: globeContainer.centerYAnchor),
-            globeImageView.widthAnchor.constraint(equalTo: globeContainer.widthAnchor, multiplier: 0.8),
-            globeImageView.heightAnchor.constraint(equalTo: globeContainer.heightAnchor, multiplier: 0.8),
+            globeImageView.widthAnchor.constraint(equalTo: globeContainer.widthAnchor, multiplier: 0.75),
+            globeImageView.heightAnchor.constraint(equalTo: globeContainer.heightAnchor, multiplier: 0.75),
             
-            spinButton.topAnchor.constraint(equalTo: globeContainer.bottomAnchor, constant: 32),
-            spinButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
-            spinButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
-            spinButton.heightAnchor.constraint(equalToConstant: 56),
-            spinButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
+            loadingIndicator.centerXAnchor.constraint(equalTo: globeContainer.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: globeContainer.centerYAnchor),
             
-            tabBarContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            tabBarContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            tabBarContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            tabBarContainer.heightAnchor.constraint(equalToConstant: 70),
-            
-            spinTabButton.leadingAnchor.constraint(equalTo: tabBarContainer.leadingAnchor, constant: 20),
-            spinTabButton.centerYAnchor.constraint(equalTo: tabBarContainer.centerYAnchor),
-            spinTabButton.widthAnchor.constraint(equalTo: tabBarContainer.widthAnchor, multiplier: 0.28),
-            
-            tripsTabButton.centerXAnchor.constraint(equalTo: tabBarContainer.centerXAnchor),
-            tripsTabButton.centerYAnchor.constraint(equalTo: tabBarContainer.centerYAnchor),
-            tripsTabButton.widthAnchor.constraint(equalTo: tabBarContainer.widthAnchor, multiplier: 0.28),
-            
-            profileTabButton.trailingAnchor.constraint(equalTo: tabBarContainer.trailingAnchor, constant: -20),
-            profileTabButton.centerYAnchor.constraint(equalTo: tabBarContainer.centerYAnchor),
-            profileTabButton.widthAnchor.constraint(equalTo: tabBarContainer.widthAnchor, multiplier: 0.28)
+            spinButton.topAnchor.constraint(equalTo: globeContainer.bottomAnchor, constant: 50),
+            spinButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            spinButton.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 32),
+            spinButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -32),
+            spinButton.heightAnchor.constraint(equalToConstant: 70)
         ])
     }
     
     override func configureViewModel() {
-        viewModel.success = { [weak self] (countryName: String) in
+        viewModel.success = { [weak self] countryName in
             self?.showCountryResult(countryName)
         }
         
-        viewModel.error = { [weak self] (errorMessage: String) in
+        viewModel.error = { [weak self] errorMessage in
             self?.showAlert(message: errorMessage)
         }
     }
@@ -229,6 +190,10 @@ class RouletteController: BaseController {
             }
         }
         
+        loadingIndicator.startAnimating()
+        globeImageView.alpha = 0.3
+        spinButton.isEnabled = false
+        
         let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotation.fromValue = 0
         rotation.toValue = Double.pi * 4
@@ -237,23 +202,17 @@ class RouletteController: BaseController {
         globeImageView.layer.add(rotation, forKey: "rotation")
         
         viewModel.spinRoulette()
-    }
-    
-    @objc private func spinTabTapped() {
-        print("Spin tab tapped")
-    }
-    
-    @objc private func tripsTabTapped() {
-        print("Trips tab tapped")
-    }
-    
-    @objc private func profileTabTapped() {
-        print("Profile tab tapped")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.loadingIndicator.stopAnimating()
+            self?.globeImageView.alpha = 1.0
+            self?.spinButton.isEnabled = true
+        }
     }
     
     private func showCountryResult(_ countryName: String) {
         let alert = UIAlertController(
-            title: "🎉 Your Destination!",
+            title: "Your Destination!",
             message: "You're going to \(countryName)!",
             preferredStyle: .alert
         )

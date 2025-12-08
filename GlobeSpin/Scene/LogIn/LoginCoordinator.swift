@@ -25,8 +25,19 @@ class LoginCoordinator: Coordinator {
         coordinator.start()
     }
     
-    func showRoulette() {
-        let coordinator = RouletteCoordinator(navigationController: navigationController)
-        coordinator.start()
+    func showTabBar() {
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
+              let window = sceneDelegate.window else {
+            return
+        }
+        
+        let tabBarController = TabBarController()
+        window.rootViewController = tabBarController
+        
+        UIView.transition(with: window,
+                         duration: 0.3,
+                         options: .transitionCrossDissolve,
+                         animations: nil,
+                         completion: nil)
     }
 }

@@ -11,6 +11,7 @@ final class SignUpViewModel {
     
     private let coordinator: SignUpCoordinator
     private let authService = AuthService.shared
+    private let userService = UserService.shared
     
     var error: ((String) -> Void)?
     var loading: ((Bool) -> Void)?
@@ -63,17 +64,34 @@ final class SignUpViewModel {
         loading?(true)
         
         authService.signUp(email: email, password: password) { [weak self] userId, authError in
-            DispatchQueue.main.async {
-                self?.loading?(false)
-                
-                if let authError = authError {
+            if let authError = authError {
+                DispatchQueue.main.async {
+                    self?.loading?(false)
                     self?.error?(authError.localizedDescription)
-                    return
                 }
-                
-                if let userId = userId {
-                    print("User signed up: \(userId)")
-                    self?.coordinator.showRoulette()
+                return
+            }
+            
+            guard let userId = userId else {
+                DispatchQueue.main.async {
+                    self?.loading?(false)
+                    self?.error?("Failed to create user")
+                }
+                return
+            }
+            
+            self?.userService.saveUserData(userId: userId, fullName: fullName, email: email) { saveError in
+                DispatchQueue.main.async {
+                    self?.loading?(false)
+                    
+                    if let saveError = saveError {
+                        print("Error saving user data: \(saveError.localizedDescription)")
+                        self?.error?("User created but failed to save data: \(saveError.localizedDescription)")
+                        return
+                    }
+                    
+                    print("User signed up and data saved successfully - UserId: \(userId), Name: \(fullName), Email: \(email)")
+                    self?.coordinator.showTabBar()
                 }
             }
         }

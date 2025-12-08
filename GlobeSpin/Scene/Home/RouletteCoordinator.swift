@@ -17,7 +17,7 @@ class RouletteCoordinator: Coordinator {
     func start() {
         let vm = RouletteViewModel(coordinator: self)  
         let vc = RouletteController(viewModel: vm)
-        navigationController.setViewControllers([vc], animated: true)
+        navigationController.show(vc, sender: nil)
     }
     
     func showCountryDetail(countryName: String) {

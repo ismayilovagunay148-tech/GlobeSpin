@@ -51,7 +51,7 @@ final class LoginViewModel {
                 
                 if let userId = userId {
                     print("User logged in: \(userId)")
-                    self?.coordinator.showRoulette()
+                    self?.coordinator.showTabBar()
                 }
             }
         }

@@ -9,7 +9,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseCore
 
-final class FirebaseAuthAdapter: AuthenticationAdapter {
+final class FirebaseAuthAdapter: AuthenticationUseCase {
     
     private let auth: Auth
     
@@ -40,7 +40,7 @@ final class FirebaseAuthAdapter: AuthenticationAdapter {
         }
     }
     
-    func signOut(completion: @escaping (Error?) -> Void) {
+    func logOut(completion: @escaping (Error?) -> Void) {
         do {
             try auth.signOut()
             completion(nil)

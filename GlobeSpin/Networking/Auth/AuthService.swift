@@ -11,9 +11,9 @@ class AuthService {
     
     static let shared = AuthService()
     
-    private let authAdapter: AuthenticationAdapter
+    private let authAdapter: AuthenticationUseCase
     
-    private init(authAdapter: AuthenticationAdapter = FirebaseAuthAdapter()) {
+    private init(authAdapter: AuthenticationUseCase = FirebaseAuthAdapter()) {
         self.authAdapter = authAdapter
     }
     
@@ -25,8 +25,8 @@ class AuthService {
         authAdapter.logIn(email: email, password: password, completion: completion)
     }
     
-    func signOut(completion: @escaping (Error?) -> Void) {
-        authAdapter.signOut(completion: completion)
+    func logOut(completion: @escaping (Error?) -> Void) {
+        authAdapter.logOut(completion: completion)
     }
     
     func isUserLoggedIn() -> Bool {
