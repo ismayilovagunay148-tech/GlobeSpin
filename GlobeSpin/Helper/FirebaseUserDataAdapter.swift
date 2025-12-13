@@ -1,27 +1,24 @@
 //
-//  UserService.swift
+//  FirebaseUserDataAdapter.swift
 //  GlobeSpin
 //
-//  Created by Gunay Ismayilova on 07.12.25.
+//  Created by Gunay Ismayilova on 10.12.25.
 //
 
 import Foundation
 import FirebaseFirestore
 import FirebaseCore
 
-class UserService {
+final class FirebaseUserDataAdapter: UserDataUseCase {
     
-    static let shared = UserService()
-    
-    private var db: Firestore {
-        return Firestore.firestore()
-    }
+    private let db: Firestore
     private let usersCollection = "users"
     
-    private init() {
+    init() {
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
         }
+        self.db = Firestore.firestore()
     }
     
     func saveUserData(userId: String, fullName: String, email: String, completion: @escaping (Error?) -> Void) {
@@ -32,22 +29,21 @@ class UserService {
             "createdAt": Timestamp(date: Date())
         ]
         
-        db.collection(usersCollection).document(userId).setData(userData) { error in
-            completion(error)
-        }
+        db.collection(usersCollection).document(userId).setData(userData, completion: completion)
     }
     
     func getUserData(userId: String, completion: @escaping (UserModel?, Error?) -> Void) {
-        db.collection(usersCollection).document(userId).getDocument { snapshot, error in
+        db.collection(usersCollection).document(userId).getDocument { document, error in
             if let error = error {
                 completion(nil, error)
                 return
             }
             
-            guard let data = snapshot?.data(),
+            guard let document = document, document.exists,
+                  let data = document.data(),
                   let fullName = data["fullName"] as? String,
                   let email = data["email"] as? String else {
-                completion(nil, NSError(domain: "UserService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unable to parse user data"]))
+                completion(nil, nil)
                 return
             }
             
@@ -62,8 +58,10 @@ class UserService {
             "updatedAt": Timestamp(date: Date())
         ]
         
-        db.collection(usersCollection).document(userId).updateData(updates) { error in
-            completion(error)
-        }
+        db.collection(usersCollection).document(userId).updateData(updates, completion: completion)
+    }
+    
+    func deleteUserData(userId: String, completion: @escaping (Error?) -> Void) {
+        db.collection(usersCollection).document(userId).delete(completion: completion)
     }
 }

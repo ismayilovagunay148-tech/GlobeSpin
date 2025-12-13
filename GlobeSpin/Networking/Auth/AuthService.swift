@@ -13,7 +13,7 @@ class AuthService {
     
     private let authAdapter: AuthenticationUseCase
     
-    private init(authAdapter: AuthenticationUseCase = FirebaseAuthAdapter()) {
+    init(authAdapter: AuthenticationUseCase = FirebaseAuthAdapter()) {
         self.authAdapter = authAdapter
     }
     

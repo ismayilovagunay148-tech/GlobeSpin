@@ -49,8 +49,6 @@ class ProfileController: BaseController {
         return label
     }()
     
-
-    
     private let fullNameSeparator: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.systemGray5
@@ -178,18 +176,26 @@ class ProfileController: BaseController {
     }
     
     override func configureViewModel() {
-        viewModel.userDataUpdated = { [weak self] fullName, email in
+        viewModel.viewState = { [weak self] state in
+            self?.handleViewState(state)
+        }
+    }
+    
+    private func handleViewState(_ state: ProfileViewModel.ViewState) {
+        switch state {
+        case .idle:
+            break
+            
+        case .loading:
+            print("ProfileController - Loading")
+            
+        case .success(let fullName, let email):
             print("ProfileController - Updating UI with name: \(fullName), email: \(email)")
-            self?.updateUI(fullName: fullName, email: email)
-        }
-        
-        viewModel.error = { [weak self] errorMessage in
+            updateUI(fullName: fullName, email: email)
+            
+        case .error(let errorMessage):
             print("ProfileController - Error: \(errorMessage)")
-            self?.showAlert(message: errorMessage)
-        }
-        
-        viewModel.loading = { [weak self] isLoading in
-            print("ProfileController - Loading: \(isLoading)")
+            showAlert(message: errorMessage)
         }
     }
     
