@@ -11,6 +11,20 @@ class LoginController: BaseController {
     
     private let viewModel: LoginViewModel
     
+    private let scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.showsVerticalScrollIndicator = false
+        sv.keyboardDismissMode = .interactive
+        return sv
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private lazy var contentStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
@@ -48,9 +62,7 @@ class LoginController: BaseController {
         iv.layer.cornerRadius = 16
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        
         iv.image = UIImage(named: "globe")
-        
         return iv
     }()
     
@@ -157,6 +169,14 @@ class LoginController: BaseController {
         return button
     }()
     
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .systemBlue
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+    
     init(viewModel: LoginViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -170,6 +190,9 @@ class LoginController: BaseController {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.99, alpha: 1.0)
         setupKeyboardDismissal()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func configureUI() {
@@ -177,16 +200,31 @@ class LoginController: BaseController {
     }
     
     override func configureConstraints() {
-        view.addSubview(contentStackView)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(contentStackView)
+        view.addSubview(loadingIndicator)
         
         [logoLabel, subtitleLabel, globeImageView, appleButton, googleButton,
          orLabel, emailTextField, passwordTextField,
          loginButton, signUpButton].forEach { contentStackView.addArrangedSubview($0) }
 
         NSLayoutConstraint.activate([
-            contentStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            contentStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            contentStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            contentStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 25),
+            contentStackView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            contentStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            contentStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
             
             globeImageView.heightAnchor.constraint(equalToConstant: 200),
             
@@ -195,6 +233,9 @@ class LoginController: BaseController {
             emailTextField.heightAnchor.constraint(equalToConstant: 50),
             passwordTextField.heightAnchor.constraint(equalToConstant: 50),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
         
         contentStackView.setCustomSpacing(6, after: logoLabel)
@@ -212,11 +253,33 @@ class LoginController: BaseController {
         viewModel.error = { [weak self] errorMessage in
             self?.showAlert(message: errorMessage)
         }
+        
+        viewModel.loading = { [weak self] isLoading in
+            if isLoading {
+                self?.loadingIndicator.startAnimating()
+                self?.view.isUserInteractionEnabled = false
+            } else {
+                self?.loadingIndicator.stopAnimating()
+                self?.view.isUserInteractionEnabled = true
+            }
+        }
     }
     
     private func setupKeyboardDismissal() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
+    }
+    
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        scrollView.contentInset = .zero
+        scrollView.scrollIndicatorInsets = .zero
     }
     
     @objc private func dismissKeyboard() {
@@ -230,12 +293,10 @@ class LoginController: BaseController {
     }
     
     @objc private func appleButtonTapped() {
-        print("Apple login tapped")
         viewModel.loginWithApple()
     }
     
     @objc private func googleButtonTapped() {
-        print("Google login tapped")
         viewModel.loginWithGoogle()
     }
     
@@ -246,7 +307,6 @@ class LoginController: BaseController {
             return
         }
         
-        print("Login with email: \(email)")
         viewModel.loginWithEmail(email: email, password: password)
     }
     

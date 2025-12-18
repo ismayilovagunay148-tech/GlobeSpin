@@ -112,31 +112,30 @@ class SplashController: BaseController {
         NSLayoutConstraint.activate([
             outerRing.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             outerRing.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -80),
-            outerRing.widthAnchor.constraint(equalToConstant: 200),
-            outerRing.heightAnchor.constraint(equalToConstant: 200),
+            outerRing.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
+            outerRing.heightAnchor.constraint(equalTo: outerRing.widthAnchor),
 
             innerRing.centerXAnchor.constraint(equalTo: outerRing.centerXAnchor),
             innerRing.centerYAnchor.constraint(equalTo: outerRing.centerYAnchor),
-            innerRing.widthAnchor.constraint(equalToConstant: 160),
-            innerRing.heightAnchor.constraint(equalToConstant: 160),
+            innerRing.widthAnchor.constraint(equalTo: outerRing.widthAnchor, multiplier: 0.8),
+            innerRing.heightAnchor.constraint(equalTo: innerRing.widthAnchor),
             
             globeCircle.centerXAnchor.constraint(equalTo: outerRing.centerXAnchor),
             globeCircle.centerYAnchor.constraint(equalTo: outerRing.centerYAnchor),
-            globeCircle.widthAnchor.constraint(equalToConstant: 140),
-            globeCircle.heightAnchor.constraint(equalToConstant: 140),
+            globeCircle.widthAnchor.constraint(equalTo: outerRing.widthAnchor, multiplier: 0.7),
+            globeCircle.heightAnchor.constraint(equalTo: globeCircle.widthAnchor),
             
             globeIcon.centerXAnchor.constraint(equalTo: globeCircle.centerXAnchor),
             globeIcon.centerYAnchor.constraint(equalTo: globeCircle.centerYAnchor),
-            globeIcon.widthAnchor.constraint(equalToConstant: 100),
-            globeIcon.heightAnchor.constraint(equalToConstant: 100),
+            globeIcon.widthAnchor.constraint(equalTo: globeCircle.widthAnchor, multiplier: 0.7),
+            globeIcon.heightAnchor.constraint(equalTo: globeIcon.widthAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: outerRing.bottomAnchor, constant: 50),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            titleLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
             travelButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            travelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 45),
-            travelButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -45),
+            travelButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
             travelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -60),
             travelButton.heightAnchor.constraint(equalToConstant: 60)
         ])

@@ -103,7 +103,6 @@ struct Country: Codable {
     }
 }
 
-// MARK: - Unsplash Response
 struct UnsplashSearchResponse: Codable {
     let total: Int
     let totalPages: Int

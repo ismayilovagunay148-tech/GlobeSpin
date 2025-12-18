@@ -11,6 +11,20 @@ class SignUpController: BaseController {
     
     private let viewModel: SignUpViewModel
     
+    private let scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.showsVerticalScrollIndicator = false
+        sv.keyboardDismissMode = .interactive
+        return sv
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let iconContainer: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBlue
@@ -215,18 +229,35 @@ class SignUpController: BaseController {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func configureConstraints() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
         iconContainer.addSubview(iconImageView)
+        
         [iconContainer, titleLabel, subtitleLabel, fullNameLabel, fullNameTextField,
          emailLabel, emailTextField, passwordLabel, passwordTextField,
          confirmPasswordLabel, confirmPasswordTextField, termsCheckbox,
-         termsLabel, signUpButton, loginTextLabel].forEach { view.addSubview($0) }
+         termsLabel, signUpButton, loginTextLabel].forEach { contentView.addSubview($0) }
 
         NSLayoutConstraint.activate([
-            iconContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            iconContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            iconContainer.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 24),
+            iconContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             iconContainer.widthAnchor.constraint(equalToConstant: 80),
             iconContainer.heightAnchor.constraint(equalToConstant: 80),
             
@@ -234,35 +265,35 @@ class SignUpController: BaseController {
             iconImageView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
             
             titleLabel.topAnchor.constraint(equalTo: iconContainer.bottomAnchor, constant: 16),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            titleLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            subtitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            subtitleLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            subtitleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
             fullNameLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 28),
-            fullNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            fullNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
             
             fullNameTextField.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 8),
-            fullNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            fullNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            fullNameTextField.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            fullNameTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             fullNameTextField.heightAnchor.constraint(equalToConstant: 50),
             
             emailLabel.topAnchor.constraint(equalTo: fullNameTextField.bottomAnchor, constant: 14),
-            emailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            emailLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
             
             emailTextField.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: 8),
-            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            emailTextField.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            emailTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             emailTextField.heightAnchor.constraint(equalToConstant: 50),
             
             passwordLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 14),
-            passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            passwordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
             
             passwordTextField.topAnchor.constraint(equalTo: passwordLabel.bottomAnchor, constant: 8),
-            passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            passwordTextField.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            passwordTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             passwordTextField.heightAnchor.constraint(equalToConstant: 50),
             
             passwordToggleButton.centerYAnchor.constraint(equalTo: passwordTextField.centerYAnchor),
@@ -271,11 +302,11 @@ class SignUpController: BaseController {
             passwordToggleButton.heightAnchor.constraint(equalToConstant: 30),
             
             confirmPasswordLabel.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 14),
-            confirmPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            confirmPasswordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
             
             confirmPasswordTextField.topAnchor.constraint(equalTo: confirmPasswordLabel.bottomAnchor, constant: 8),
-            confirmPasswordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            confirmPasswordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            confirmPasswordTextField.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            confirmPasswordTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             confirmPasswordTextField.heightAnchor.constraint(equalToConstant: 50),
             
             confirmPasswordToggleButton.centerYAnchor.constraint(equalTo: confirmPasswordTextField.centerYAnchor),
@@ -284,21 +315,22 @@ class SignUpController: BaseController {
             confirmPasswordToggleButton.heightAnchor.constraint(equalToConstant: 30),
             
             termsCheckbox.topAnchor.constraint(equalTo: confirmPasswordTextField.bottomAnchor, constant: 16),
-            termsCheckbox.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            termsCheckbox.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
             termsCheckbox.widthAnchor.constraint(equalToConstant: 24),
             termsCheckbox.heightAnchor.constraint(equalToConstant: 24),
             
             termsLabel.centerYAnchor.constraint(equalTo: termsCheckbox.centerYAnchor),
             termsLabel.leadingAnchor.constraint(equalTo: termsCheckbox.trailingAnchor, constant: 8),
-            termsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            termsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
             
             signUpButton.topAnchor.constraint(equalTo: termsCheckbox.bottomAnchor, constant: 20),
-            signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            signUpButton.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
+            signUpButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 52),
             
             loginTextLabel.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 16),
-            loginTextLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            loginTextLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            loginTextLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30)
         ])
     }
     
@@ -306,6 +338,18 @@ class SignUpController: BaseController {
         viewModel.error = { [weak self] errorMessage in
             self?.showAlert(message: errorMessage)
         }
+    }
+    
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
+    }
+    
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        scrollView.contentInset = .zero
+        scrollView.scrollIndicatorInsets = .zero
     }
     
     @objc private func togglePasswordVisibility() {
@@ -346,5 +390,9 @@ class SignUpController: BaseController {
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

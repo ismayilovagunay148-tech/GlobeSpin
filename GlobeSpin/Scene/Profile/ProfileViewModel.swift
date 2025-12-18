@@ -32,41 +32,33 @@ final class ProfileViewModel {
             return
         }
         
-        print("Loading user data for userId: \(userId)")
         viewState?(.loading)
         
-        userService.getUserData(userId: userId, forceRefresh: forceRefresh, completion: { [weak self] userData, fetchError in
-            DispatchQueue.main.async {
-                if let fetchError = fetchError {
-                    print("Error fetching user data: \(fetchError.localizedDescription)")
-                    self?.viewState?(.error(fetchError.localizedDescription))
-                    return
-                }
-                
-                if let userData = userData {
-                    print("User data loaded successfully - Name: \(userData.fullName), Email: \(userData.email)")
-                    self?.viewState?(.success(fullName: userData.fullName, email: userData.email))
-                } else {
-                    print("No user data found")
-                    self?.viewState?(.error("No user data found"))
-                }
+        userService.getUserData(userId: userId, forceRefresh: forceRefresh) { [weak self] userData, fetchError in
+            if let fetchError = fetchError {
+                self?.viewState?(.error(fetchError.localizedDescription))
+                return
             }
-        })
+            
+            if let userData = userData {
+                self?.viewState?(.success(fullName: userData.fullName, email: userData.email))
+            } else {
+                self?.viewState?(.error("No user data found"))
+            }
+        }
     }
     
     func logout() {
         viewState?(.loading)
         
-        authService.logOut(completion: { [weak self] logoutError in
-            DispatchQueue.main.async {
-                if let logoutError = logoutError {
-                    self?.viewState?(.error("Failed to log out: \(logoutError.localizedDescription)"))
-                    return
-                }
-                
-                self?.userService.clearCache()
-                self?.coordinator.showSplash()
+        authService.logOut { [weak self] logoutError in
+            if let logoutError = logoutError {
+                self?.viewState?(.error("Failed to log out: \(logoutError.localizedDescription)"))
+                return
             }
-        })
+            
+            self?.userService.clearCache()
+            self?.coordinator.showSplash()
+        }
     }
 }
