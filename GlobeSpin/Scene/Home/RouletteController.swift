@@ -8,7 +8,7 @@
 import UIKit
 
 class RouletteController: BaseController {
-
+    
     private let viewModel: RouletteViewModel
     
     private let gradientLayer = CAGradientLayer()
@@ -97,7 +97,7 @@ class RouletteController: BaseController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .semibold)
-        config.attributedTitle = AttributedString("🌎 Spin the Globe", attributes: container)
+        config.attributedTitle = AttributedString("🌍 Spin the Globe", attributes: container)
         
         button.configuration = config
         button.layer.shadowColor = UIColor.black.cgColor
@@ -199,27 +199,27 @@ class RouletteController: BaseController {
     }
     
     override func configureViewModel() {
-        viewModel.success = { [weak self] countryName in
-            self?.showCountryResult(countryName)
+        viewModel.success = { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self?.loadingIndicator.stopAnimating()
+                self?.globeImageView.alpha = 1.0
+                self?.spinButton.isEnabled = true
+            }
         }
         
+        
         viewModel.error = { [weak self] errorMessage in
+            self?.loadingIndicator.stopAnimating()
+            self?.globeImageView.alpha = 1.0
+            self?.spinButton.isEnabled = true
             self?.showAlert(message: errorMessage)
         }
     }
     
     @objc private func spinButtonTapped() {
-        UIView.animate(withDuration: 0.1, animations: {
-            self.spinButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-        }) { _ in
-            UIView.animate(withDuration: 0.1) {
-                self.spinButton.transform = .identity
-            }
-        }
-        
+        spinButton.isEnabled = false
         loadingIndicator.startAnimating()
         globeImageView.alpha = 0.3
-        spinButton.isEnabled = false
         
         let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotation.fromValue = 0
@@ -229,21 +229,5 @@ class RouletteController: BaseController {
         globeImageView.layer.add(rotation, forKey: "rotation")
         
         viewModel.spinRoulette()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.loadingIndicator.stopAnimating()
-            self?.globeImageView.alpha = 1.0
-            self?.spinButton.isEnabled = true
-        }
-    }
-    
-    private func showCountryResult(_ countryName: String) {
-        let alert = UIAlertController(
-            title: "Your Destination!",
-            message: "You're going to \(countryName)!",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Awesome!", style: .default))
-        present(alert, animated: true)
     }
 }

@@ -20,7 +20,8 @@ class RouletteCoordinator: Coordinator {
         navigationController.show(vc, sender: nil)
     }
     
-    func showCountryDetail(countryName: String) {
-        print("Show detail for: \(countryName)")
+    func showCountryDetail(country: Country) {
+        let detailCoordinator = CountryDetailCoordinator(navigationController: navigationController, country: country)
+        detailCoordinator.start()
     }
 }
