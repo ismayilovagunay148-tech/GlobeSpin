@@ -10,6 +10,8 @@ import UIKit
 class CountryDetailController: BaseController {
     
     private let viewModel: CountryDetailViewModel
+    private let favoritesManager = FavoritesManager.shared
+    private let authService = AuthService.shared
     
     private let tableView: UITableView = {
         let tv = UITableView(frame: .zero, style: .plain)
@@ -34,9 +36,17 @@ class CountryDetailController: BaseController {
         view.backgroundColor = .systemBackground
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
     override func configureUI() {
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -53,6 +63,28 @@ class CountryDetailController: BaseController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+    
+    private func addToFavorites() {
+        guard let userId = authService.getCurrentUserId() else {
+            showAlert(message: "Please log in to save favorites")
+            return
+        }
+        
+        let country = viewModel.getCountry()
+        
+        favoritesManager.addFavorite(userId: userId, country: country) { [weak self] error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.showAlert(message: "Failed to save: \(error.localizedDescription)")
+                } else {
+                    self?.showAlert(
+                        title: "Added to My Trips! 🎉",
+                        message: "\(country.name) has been added to your travel list."
+                    )
+                }
+            }
+        }
+    }
 }
 
 extension CountryDetailController: UITableViewDelegate, UITableViewDataSource {
@@ -66,20 +98,14 @@ extension CountryDetailController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: CountryDetailCell.identifier, for: indexPath) as! CountryDetailCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CountryDetailCell.identifier, for: indexPath) as? CountryDetailCell else {
+            return UITableViewCell()
+        }
         
         cell.configure(country: viewModel.getCountry())
         
-        cell.backButtonAction = { [weak self] in
-            self?.navigationController?.popViewController(animated: true)
-        }
-        
         cell.yesButtonAction = { [weak self] in
-            guard let self = self else { return }
-            self.showAlert(
-                title: "Great Choice!",
-                message: "We'll remember your interest in \(self.viewModel.getCountryName())!"
-            )
+            self?.addToFavorites()
         }
         
         cell.spinAgainButtonAction = { [weak self] in

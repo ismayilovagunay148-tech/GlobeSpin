@@ -10,6 +10,7 @@ import UIKit
 class ProfileController: BaseController {
     
     private let viewModel: ProfileViewModel
+    private var isEditingName = false
     
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
@@ -34,6 +35,15 @@ class ProfileController: BaseController {
         return iv
     }()
     
+    private let nameStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.text = ""
@@ -42,6 +52,57 @@ class ProfileController: BaseController {
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private let nameTextField: UITextField = {
+        let tf = UITextField()
+        tf.font = .systemFont(ofSize: 20, weight: .semibold)
+        tf.textColor = .label
+        tf.textAlignment = .center
+        tf.borderStyle = .roundedRect
+        tf.isHidden = true
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        return tf
+    }()
+    
+    private let editButton: UIButton = {
+        let button = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        let image = UIImage(systemName: "pencil.circle.fill", withConfiguration: config)
+        button.setImage(image, for: .normal)
+        button.tintColor = .systemGray
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let editActionsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 12
+        stack.distribution = .fillEqually
+        stack.isHidden = true
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    private let saveButton: UIButton = {
+        let button = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        let image = UIImage(systemName: "checkmark.circle.fill", withConfiguration: config)
+        button.setImage(image, for: .normal)
+        button.tintColor = .systemGreen
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let cancelButton: UIButton = {
+        let button = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        let image = UIImage(systemName: "xmark.circle.fill", withConfiguration: config)
+        button.setImage(image, for: .normal)
+        button.tintColor = .systemRed
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let fullNameHeaderLabel: UILabel = {
@@ -126,6 +187,10 @@ class ProfileController: BaseController {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "Profile"
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -140,15 +205,27 @@ class ProfileController: BaseController {
     
     override func configureUI() {
         logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
+        editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        
+        nameTextField.delegate = self
     }
     
     override func configureConstraints() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
-        [profileImageView, nameLabel, fullNameHeaderLabel, fullNameValueLabel,
-         fullNameSeparator, emailHeaderLabel, emailValueLabel,
-         emailSeparator, logoutButton].forEach { contentView.addSubview($0) }
+        nameStackView.addArrangedSubview(nameLabel)
+        nameStackView.addArrangedSubview(editButton)
+        
+        editActionsStackView.addArrangedSubview(saveButton)
+        editActionsStackView.addArrangedSubview(cancelButton)
+        
+        [profileImageView, nameStackView, nameTextField, editActionsStackView,
+         fullNameHeaderLabel, fullNameValueLabel, fullNameSeparator,
+         emailHeaderLabel, emailValueLabel, emailSeparator,
+         logoutButton].forEach { contentView.addSubview($0) }
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -167,11 +244,27 @@ class ProfileController: BaseController {
             profileImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.25),
             profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor),
             
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 16),
-            nameLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            nameLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            nameStackView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 16),
+            nameStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            fullNameHeaderLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 32),
+            editButton.widthAnchor.constraint(equalToConstant: 24),
+            editButton.heightAnchor.constraint(equalToConstant: 24),
+            
+            nameTextField.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 16),
+            nameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
+            nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
+            nameTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            editActionsStackView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 12),
+            editActionsStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            editActionsStackView.widthAnchor.constraint(equalToConstant: 80),
+            
+            saveButton.widthAnchor.constraint(equalToConstant: 34),
+            saveButton.heightAnchor.constraint(equalToConstant: 34),
+            cancelButton.widthAnchor.constraint(equalToConstant: 34),
+            cancelButton.heightAnchor.constraint(equalToConstant: 34),
+            
+            fullNameHeaderLabel.topAnchor.constraint(equalTo: nameStackView.bottomAnchor, constant: 32),
             fullNameHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
             fullNameValueLabel.topAnchor.constraint(equalTo: fullNameHeaderLabel.bottomAnchor, constant: 8),
@@ -213,25 +306,63 @@ class ProfileController: BaseController {
         switch state {
         case .idle:
             break
-            
         case .loading:
-            print("ProfileController - Loading")
-            
+            break
         case .success(let fullName, let email):
-            print("ProfileController - Updating UI with name: \(fullName), email: \(email)")
             updateUI(fullName: fullName, email: email)
-            
         case .error(let errorMessage):
-            print("ProfileController - Error: \(errorMessage)")
             showAlert(message: errorMessage)
+        case .updateSuccess:
+            showSuccessAlert(message: "Your name has been updated")
+            setEditMode(false)
+            viewModel.loadUserData(forceRefresh: true)
         }
     }
     
     private func updateUI(fullName: String, email: String) {
-        print("ProfileController - updateUI called with name: \(fullName), email: \(email)")
         nameLabel.text = fullName
+        nameTextField.text = fullName
         fullNameValueLabel.text = fullName
         emailValueLabel.text = email
+    }
+    
+    private func setEditMode(_ editing: Bool) {
+        isEditingName = editing
+        
+        UIView.animate(withDuration: 0.3) {
+            self.nameStackView.isHidden = editing
+            self.nameTextField.isHidden = !editing
+            self.editActionsStackView.isHidden = !editing
+        }
+        
+        if editing {
+            nameTextField.becomeFirstResponder()
+        } else {
+            nameTextField.resignFirstResponder()
+        }
+    }
+    
+    @objc private func editButtonTapped() {
+        setEditMode(true)
+    }
+    
+    @objc private func saveButtonTapped() {
+        guard let newName = nameTextField.text?.trimmingCharacters(in: .whitespaces),
+              !newName.isEmpty else {
+            showAlert(message: "Please enter a valid name")
+            return
+        }
+        
+        viewModel.updateUserName(newName: newName)
+    }
+    
+    @objc private func cancelButtonTapped() {
+        nameTextField.text = nameLabel.text
+        setEditMode(false)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     @objc private func logoutButtonTapped() {
@@ -243,5 +374,12 @@ class ProfileController: BaseController {
         ) { [weak self] in
             self?.viewModel.logout()
         }
+    }
+}
+
+extension ProfileController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        saveButtonTapped()
+        return true
     }
 }

@@ -2,7 +2,7 @@
 //  CountryManager.swift
 //  GlobeSpin
 //
-//  Created by Gunay Ismayilova on 25.11.25.
+//  Created by Gunay Ismayilova on 20.11.25.
 //
 
 import Foundation
@@ -27,7 +27,7 @@ class CountryManager: CountryUseCase {
     }
     
     func getCountry(byName name: String, completion: @escaping ((Country?, String?) -> Void)) {
-        manager.request(url: CountryEndpoint.countryByName.pathWithName(name),
+        manager.request(url: CountryEndpoint.countryByName(name: name).path,
                         model: Country.self,
                         completion: completion)
     }
@@ -44,8 +44,7 @@ class CountryManager: CountryUseCase {
                 return
             }
             
-            let randomCountry = countries.randomElement()
-            completion(randomCountry, nil)
+            completion(countries.randomElement(), nil)
         }
     }
 }

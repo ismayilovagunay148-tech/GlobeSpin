@@ -14,6 +14,7 @@ final class ProfileViewModel {
         case loading
         case success(fullName: String, email: String)
         case error(String)
+        case updateSuccess
     }
     
     private let coordinator: ProfileCoordinator
@@ -45,6 +46,24 @@ final class ProfileViewModel {
             } else {
                 self?.viewState?(.error("No user data found"))
             }
+        }
+    }
+    
+    func updateUserName(newName: String) {
+        guard let userId = authService.getCurrentUserId() else {
+            viewState?(.error("Unable to update user data"))
+            return
+        }
+        
+        viewState?(.loading)
+        
+        userService.updateUserData(userId: userId, fullName: newName) { [weak self] updateError in
+            if let updateError = updateError {
+                self?.viewState?(.error("Failed to update name: \(updateError.localizedDescription)"))
+                return
+            }
+            
+            self?.viewState?(.updateSuccess)
         }
     }
     

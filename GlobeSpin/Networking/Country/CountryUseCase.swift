@@ -2,7 +2,7 @@
 //  CountryUseCase.swift
 //  GlobeSpin
 //
-//  Created by Gunay Ismayilova on 25.11.25.
+//  Created by Gunay Ismayilova on 20.11.25.
 //
 
 import Foundation

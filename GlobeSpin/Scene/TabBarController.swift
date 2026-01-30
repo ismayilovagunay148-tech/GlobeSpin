@@ -15,16 +15,42 @@ class TabBarController: UITabBarController {
         setupViewControllers()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        setupTabBarShape()
+    }
+    
     private func setupTabBar() {
-        tabBar.backgroundColor = .systemBackground
+        tabBar.backgroundColor = .clear
         tabBar.tintColor = UIColor(red: 0.4, green: 0.7, blue: 0.85, alpha: 1.0)
         tabBar.unselectedItemTintColor = .systemGray
-        
-        tabBar.layer.shadowColor = UIColor.black.cgColor
-        tabBar.layer.shadowOffset = CGSize(width: 0, height: -2)
-        tabBar.layer.shadowRadius = 4
-        tabBar.layer.shadowOpacity = 0.1
+        tabBar.isTranslucent = true
      }
+    
+    private func setupTabBarShape() {
+        let shapeLayer = CAShapeLayer()
+        
+        let path = UIBezierPath(
+            roundedRect: CGRect(
+                x: 15,
+                y: tabBar.bounds.minY - 10,
+                width: tabBar.bounds.width - 30,
+                height: tabBar.bounds.height - 10
+            ),
+            cornerRadius: 30
+        )
+        
+        shapeLayer.path = path.cgPath
+        shapeLayer.fillColor = UIColor.systemBackground.cgColor
+        shapeLayer.shadowColor = UIColor.black.cgColor
+        shapeLayer.shadowOffset = CGSize(width: 0, height: -2)
+        shapeLayer.shadowRadius = 10
+        shapeLayer.shadowOpacity = 0.1
+        
+        tabBar.layer.insertSublayer(shapeLayer, at: 0)
+        tabBar.itemWidth = (tabBar.bounds.width - 40) / 4
+        tabBar.itemPositioning = .centered
+    }
     
     private func setupViewControllers() {
         let rouletteNav = UINavigationController()
@@ -36,19 +62,19 @@ class TabBarController: UITabBarController {
             selectedImage: UIImage(systemName: "globe.fill")
         )
         
-        let exploreNav = UINavigationController()
-        let exploreVC = createPlaceholderViewController(title: "Explore", icon: "🗺️")
-        exploreNav.setViewControllers([exploreVC], animated: false)
-        exploreNav.tabBarItem = UITabBarItem(
+        let searchNav = UINavigationController()
+        let searchCoordinator = SearchCoordinator(navigationController: searchNav)
+        searchCoordinator.start()
+        searchNav.tabBarItem = UITabBarItem(
             title: "Explore",
-            image: UIImage(systemName: "map"),
-            selectedImage: UIImage(systemName: "map.fill")
+            image: UIImage(systemName: "magnifyingglass"),
+            selectedImage: UIImage(systemName: "magnifyingglass")
         )
         
-        let tripsNav = UINavigationController()
-        let tripsVC = createPlaceholderViewController(title: "My Trips", icon: "✈️")
-        tripsNav.setViewControllers([tripsVC], animated: false)
-        tripsNav.tabBarItem = UITabBarItem(
+        let favoritesNav = UINavigationController()
+        let favoritesCoordinator = FavoritesCoordinator(navigationController: favoritesNav)
+        favoritesCoordinator.start()
+        favoritesNav.tabBarItem = UITabBarItem(
             title: "My Trips",
             image: UIImage(systemName: "airplane"),
             selectedImage: UIImage(systemName: "airplane.circle.fill")
@@ -63,29 +89,6 @@ class TabBarController: UITabBarController {
             selectedImage: UIImage(systemName: "person.circle.fill")
         )
         
-        viewControllers = [rouletteNav, exploreNav, tripsNav, profileNav]
-    }
-    
-    private func createPlaceholderViewController(title: String, icon: String) -> UIViewController {
-        let vc = UIViewController()
-        vc.view.backgroundColor = .systemBackground
-        vc.title = title
-        
-        let label = UILabel()
-        label.text = "\(icon)\n\(title)\nComing Soon"
-        label.font = .systemFont(ofSize: 24, weight: .medium)
-        label.textColor = .secondaryLabel
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        vc.view.addSubview(label)
-        
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: vc.view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: vc.view.centerYAnchor)
-        ])
-        
-        return vc
+        viewControllers = [rouletteNav, searchNav, favoritesNav, profileNav]
     }
 }

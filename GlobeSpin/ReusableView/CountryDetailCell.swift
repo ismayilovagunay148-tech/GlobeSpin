@@ -21,17 +21,6 @@ class CountryDetailCell: UITableViewCell {
         return iv
     }()
     
-    private let backButton: UIButton = {
-        let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
-        button.setImage(UIImage(systemName: "chevron.left", withConfiguration: config), for: .normal)
-        button.tintColor = .white
-        button.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-        button.layer.cornerRadius = 20
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private let countryNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 32, weight: .bold)
@@ -147,7 +136,6 @@ class CountryDetailCell: UITableViewCell {
         return button
     }()
     
-    var backButtonAction: (() -> Void)?
     var yesButtonAction: (() -> Void)?
     var spinAgainButtonAction: (() -> Void)?
     
@@ -164,7 +152,7 @@ class CountryDetailCell: UITableViewCell {
         selectionStyle = .none
         backgroundColor = .clear
         
-        [countryImageView, backButton, countryNameLabel, capitalLabel,
+        [countryImageView, countryNameLabel, capitalLabel,
          weatherContainerView, funFactHeaderLabel, funFactIconLabel, funFactLabel,
          wouldYouGoLabel, yesButton, voteInfoLabel, spinAgainButton]
             .forEach { contentView.addSubview($0) }
@@ -174,7 +162,6 @@ class CountryDetailCell: UITableViewCell {
         weatherContainerView.addSubview(weatherConditionLabel)
         weatherContainerView.addSubview(weatherIconView)
         
-        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         yesButton.addTarget(self, action: #selector(yesButtonTapped), for: .touchUpInside)
         spinAgainButton.addTarget(self, action: #selector(spinAgainButtonTapped), for: .touchUpInside)
         
@@ -183,11 +170,6 @@ class CountryDetailCell: UITableViewCell {
             countryImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             countryImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             countryImageView.heightAnchor.constraint(equalToConstant: 300),
-            
-            backButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            backButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            backButton.widthAnchor.constraint(equalToConstant: 40),
-            backButton.heightAnchor.constraint(equalToConstant: 40),
             
             countryNameLabel.topAnchor.constraint(equalTo: countryImageView.bottomAnchor, constant: 24),
             countryNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
@@ -267,10 +249,6 @@ class CountryDetailCell: UITableViewCell {
                 }
             }
         }
-    }
-    
-    @objc private func backButtonTapped() {
-        backButtonAction?()
     }
     
     @objc private func yesButtonTapped() {

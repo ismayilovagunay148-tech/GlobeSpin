@@ -36,6 +36,6 @@ struct Weather: Codable {
     let description: String
     
     var displayTemperature: String {
-        return "\(temperatureC)°C"
+        return "\(temperatureC)°C / \(String(format: "%.0f", temperatureF))°F"
     }
 }

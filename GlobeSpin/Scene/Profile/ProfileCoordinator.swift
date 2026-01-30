@@ -17,7 +17,7 @@ class ProfileCoordinator: Coordinator {
     func start() {
         let vm = ProfileViewModel(coordinator: self)
         let vc = ProfileController(viewModel: vm)
-        navigationController.setViewControllers([vc], animated: false)
+        navigationController.show(vc, sender: nil)
     }
     
     func showSplash() {

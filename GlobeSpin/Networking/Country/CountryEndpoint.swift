@@ -2,26 +2,21 @@
 //  CountryEndpoint.swift
 //  GlobeSpin
 //
-//  Created by Gunay Ismayilova on 25.11.25.
+//  Created by Gunay Ismayilova on 20.11.25.
 //
-
 
 import Foundation
 
-enum CountryEndpoint: String {
-    case allCountries = "countries"
-    case countryByName = "country"
+enum CountryEndpoint {
+    case allCountries
+    case countryByName(name: String)
     
     var path: String {
         switch self {
         case .allCountries:
-            return NetworkingHelper.shared.configureURL(endpoint: self.rawValue)
-        case .countryByName:
-            return NetworkingHelper.shared.configureURL(endpoint: self.rawValue)
+            return NetworkingHelper.shared.configureURL(endpoint: "countries")
+        case .countryByName(let name):
+            return NetworkingHelper.shared.configureURL(endpoint: "country/\(name.lowercased())")
         }
-    }
-    
-    func pathWithName(_ name: String) -> String {
-        return NetworkingHelper.shared.configureURL(endpoint: "\(self.rawValue)/\(name.lowercased())")
     }
 }

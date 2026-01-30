@@ -15,12 +15,18 @@ final class RouletteViewModel {
     var error: ((String) -> Void)?
     
     private let countryManager = CountryManager.shared
+    private let networkMonitor = NetworkMonitor.shared
     
     init(coordinator: RouletteCoordinator) {
         self.coordinator = coordinator
     }
     
     func spinRoulette() {
+        guard networkMonitor.isConnected else {
+            error?("No internet connection. Please check your connection and try again.")
+            return
+        }
+        
         countryManager.getRandomCountry { [weak self] country, errorMessage in
             DispatchQueue.main.async {
                 if let errorMessage = errorMessage {
@@ -34,8 +40,8 @@ final class RouletteViewModel {
                 }
                 
                 print("Successfully fetched country: \(country.name)")
-                self?.coordinator?.showCountryDetail(country: country)
                 self?.success?()
+                self?.coordinator?.showCountryDetail(country: country)
             }
         }
     }

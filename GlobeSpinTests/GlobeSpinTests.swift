@@ -9,13 +9,44 @@ import XCTest
 @testable import GlobeSpin
 
 final class GlobeSpinTests: XCTestCase {
-
+    let manager = CountryManager.shared
+    let searchManager = SearchManager.shared
+    
+    
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+    }
+    
+    func testCountryMockData() throws {
+        manager.getAllCountries { data, error in
+            XCTAssertNotNil(data)
+            XCTAssertGreaterThan(data?.count ?? 0, 0)
+        }
+    }
+    
+    func testCountryResult() throws {
+        manager.getAllCountries { data, error in
+            XCTAssertNotNil(data)
+            XCTAssertNil(error)
+        }
+    }
+    
+    func testCountryResultError() throws {
+        manager.getAllCountries { data, error in
+//            XCTAssertNotNil(error)
+//            XCTAssertNil(data)
+        }
+    }
+    
+    func testCountryInfoData() throws {
+        manager.getAllCountries { data, error in
+            XCTAssertNotNil(data)
+            XCTAssertNotNil(data?.first?.name)
+        }
     }
 
     func testExample() throws {
@@ -28,7 +59,7 @@ final class GlobeSpinTests: XCTestCase {
 
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
-        self.measure {
+        measure {
             // Put the code you want to measure the time of here.
         }
     }
