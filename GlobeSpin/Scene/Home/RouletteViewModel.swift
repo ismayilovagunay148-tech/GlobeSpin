@@ -9,7 +9,7 @@ import Foundation
 
 final class RouletteViewModel {
     
-    weak var coordinator: RouletteCoordinator?
+    private let coordinator: RouletteCoordinator
     
     var success: (() -> Void)?
     var error: ((String) -> Void)?
@@ -41,7 +41,7 @@ final class RouletteViewModel {
                 
                 print("Successfully fetched country: \(country.name)")
                 self?.success?()
-                self?.coordinator?.showCountryDetail(country: country)
+                self?.coordinator.showCountryDetail(country: country)
             }
         }
     }

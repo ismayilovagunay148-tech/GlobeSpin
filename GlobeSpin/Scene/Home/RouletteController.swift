@@ -13,19 +13,6 @@ class RouletteController: BaseController {
     
     private let gradientLayer = CAGradientLayer()
     
-    private let scrollView: UIScrollView = {
-        let sv = UIScrollView()
-        sv.translatesAutoresizingMaskIntoConstraints = false
-        sv.showsVerticalScrollIndicator = false
-        return sv
-    }()
-    
-    private let contentView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     private let headerLabel: UILabel = {
         let label = UILabel()
         label.text = "Travel Roulette+"
@@ -144,57 +131,49 @@ class RouletteController: BaseController {
     }
     
     override func configureConstraints() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        
         [headerLabel, titleLabel, subtitleLabel, globeContainer, spinButton].forEach {
-            contentView.addSubview($0)
+            view.addSubview($0)
         }
         
         globeContainer.addSubview(globeImageView)
         globeContainer.addSubview(loadingIndicator)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            // header — tight to top
+            headerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            headerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            headerLabel.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 24),
-            headerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            
+            // title — tight below header
             titleLabel.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 30),
-            titleLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.9),
-            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            titleLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
+            // subtitle — tight below title
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
-            subtitleLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.9),
-            subtitleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            subtitleLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+            subtitleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            globeContainer.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 25),
-            globeContainer.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.85),
-            globeContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            globeContainer.heightAnchor.constraint(equalTo: globeContainer.widthAnchor, multiplier: 1.0),
+            // globe container — perfect square, top anchored only
+            globeContainer.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
+            globeContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85),
+            globeContainer.heightAnchor.constraint(equalTo: globeContainer.widthAnchor),
+            globeContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
+            // globe image — centered inside container
             globeImageView.centerXAnchor.constraint(equalTo: globeContainer.centerXAnchor),
             globeImageView.centerYAnchor.constraint(equalTo: globeContainer.centerYAnchor),
             globeImageView.widthAnchor.constraint(equalTo: globeContainer.widthAnchor, multiplier: 0.75),
             globeImageView.heightAnchor.constraint(equalTo: globeContainer.heightAnchor, multiplier: 0.75),
             
+            // loading indicator
             loadingIndicator.centerXAnchor.constraint(equalTo: globeContainer.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: globeContainer.centerYAnchor),
             
-            spinButton.topAnchor.constraint(equalTo: globeContainer.bottomAnchor, constant: 50),
-            spinButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            spinButton.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            spinButton.heightAnchor.constraint(equalToConstant: 70),
-            spinButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30)
+            // button — pinned to bottom
+            spinButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
+            spinButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            spinButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            spinButton.heightAnchor.constraint(equalToConstant: 70)
         ])
     }
     
@@ -206,7 +185,6 @@ class RouletteController: BaseController {
                 self?.spinButton.isEnabled = true
             }
         }
-        
         
         viewModel.error = { [weak self] errorMessage in
             self?.loadingIndicator.stopAnimating()
