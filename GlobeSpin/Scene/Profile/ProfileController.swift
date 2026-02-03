@@ -12,10 +12,13 @@ class ProfileController: BaseController {
     private let viewModel: ProfileViewModel
     private var isEditingName = false
     
+    private var fullNameCardTopConstraint: NSLayoutConstraint?
+    
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
         sv.translatesAutoresizingMaskIntoConstraints = false
         sv.showsVerticalScrollIndicator = false
+        sv.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
         return sv
     }()
     
@@ -105,10 +108,22 @@ class ProfileController: BaseController {
         return button
     }()
     
+    private let fullNameCardView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 12
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+        view.layer.shadowRadius = 4
+        view.layer.shadowOpacity = 0.05
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let fullNameHeaderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Fullname"
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.text = "Full Name"
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .systemGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -117,15 +132,20 @@ class ProfileController: BaseController {
     private let fullNameValueLabel: UILabel = {
         let label = UILabel()
         label.text = ""
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let fullNameSeparator: UIView = {
+    private let emailCardView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.systemGray5
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 12
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+        view.layer.shadowRadius = 4
+        view.layer.shadowOpacity = 0.05
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -133,7 +153,7 @@ class ProfileController: BaseController {
     private let emailHeaderLabel: UILabel = {
         let label = UILabel()
         label.text = "Email"
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .systemGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -142,17 +162,10 @@ class ProfileController: BaseController {
     private let emailValueLabel: UILabel = {
         let label = UILabel()
         label.text = ""
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    private let emailSeparator: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.systemGray5
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     private let logoutButton: UIButton = {
@@ -185,7 +198,7 @@ class ProfileController: BaseController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
         title = "Profile"
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -222,10 +235,14 @@ class ProfileController: BaseController {
         editActionsStackView.addArrangedSubview(saveButton)
         editActionsStackView.addArrangedSubview(cancelButton)
         
+        fullNameCardView.addSubview(fullNameHeaderLabel)
+        fullNameCardView.addSubview(fullNameValueLabel)
+        
+        emailCardView.addSubview(emailHeaderLabel)
+        emailCardView.addSubview(emailValueLabel)
+        
         [profileImageView, nameStackView, nameTextField, editActionsStackView,
-         fullNameHeaderLabel, fullNameValueLabel, fullNameSeparator,
-         emailHeaderLabel, emailValueLabel, emailSeparator,
-         logoutButton].forEach { contentView.addSubview($0) }
+         fullNameCardView, emailCardView, logoutButton].forEach { contentView.addSubview($0) }
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -255,7 +272,7 @@ class ProfileController: BaseController {
             nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
             nameTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            editActionsStackView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 12),
+            editActionsStackView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 62),
             editActionsStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             editActionsStackView.widthAnchor.constraint(equalToConstant: 80),
             
@@ -264,36 +281,38 @@ class ProfileController: BaseController {
             cancelButton.widthAnchor.constraint(equalToConstant: 34),
             cancelButton.heightAnchor.constraint(equalToConstant: 34),
             
-            fullNameHeaderLabel.topAnchor.constraint(equalTo: nameStackView.bottomAnchor, constant: 32),
-            fullNameHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
+            fullNameCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            fullNameCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            fullNameCardView.heightAnchor.constraint(equalToConstant: 80),
+            
+            fullNameHeaderLabel.topAnchor.constraint(equalTo: fullNameCardView.topAnchor, constant: 16),
+            fullNameHeaderLabel.leadingAnchor.constraint(equalTo: fullNameCardView.leadingAnchor, constant: 16),
             
             fullNameValueLabel.topAnchor.constraint(equalTo: fullNameHeaderLabel.bottomAnchor, constant: 8),
-            fullNameValueLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            fullNameValueLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            fullNameValueLabel.leadingAnchor.constraint(equalTo: fullNameCardView.leadingAnchor, constant: 16),
+            fullNameValueLabel.trailingAnchor.constraint(equalTo: fullNameCardView.trailingAnchor, constant: -16),
             
-            fullNameSeparator.topAnchor.constraint(equalTo: fullNameValueLabel.bottomAnchor, constant: 16),
-            fullNameSeparator.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            fullNameSeparator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            fullNameSeparator.heightAnchor.constraint(equalToConstant: 1),
+            emailCardView.topAnchor.constraint(equalTo: fullNameCardView.bottomAnchor, constant: 16),
+            emailCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            emailCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            emailCardView.heightAnchor.constraint(equalToConstant: 80),
             
-            emailHeaderLabel.topAnchor.constraint(equalTo: fullNameSeparator.bottomAnchor, constant: 20),
-            emailHeaderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
+            emailHeaderLabel.topAnchor.constraint(equalTo: emailCardView.topAnchor, constant: 16),
+            emailHeaderLabel.leadingAnchor.constraint(equalTo: emailCardView.leadingAnchor, constant: 16),
             
             emailValueLabel.topAnchor.constraint(equalTo: emailHeaderLabel.bottomAnchor, constant: 8),
-            emailValueLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            emailValueLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            emailValueLabel.leadingAnchor.constraint(equalTo: emailCardView.leadingAnchor, constant: 16),
+            emailValueLabel.trailingAnchor.constraint(equalTo: emailCardView.trailingAnchor, constant: -16),
             
-            emailSeparator.topAnchor.constraint(equalTo: emailValueLabel.bottomAnchor, constant: 16),
-            emailSeparator.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            emailSeparator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            emailSeparator.heightAnchor.constraint(equalToConstant: 1),
-            
-            logoutButton.topAnchor.constraint(equalTo: emailSeparator.bottomAnchor, constant: 28),
+            logoutButton.topAnchor.constraint(equalTo: emailCardView.bottomAnchor, constant: 28),
             logoutButton.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
             logoutButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             logoutButton.heightAnchor.constraint(equalToConstant: 50),
             logoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30)
         ])
+        
+        fullNameCardTopConstraint = fullNameCardView.topAnchor.constraint(equalTo: nameStackView.bottomAnchor, constant: 32)
+        fullNameCardTopConstraint?.isActive = true
     }
     
     override func configureViewModel() {
@@ -333,6 +352,15 @@ class ProfileController: BaseController {
             self.nameStackView.isHidden = editing
             self.nameTextField.isHidden = !editing
             self.editActionsStackView.isHidden = !editing
+            
+            self.fullNameCardTopConstraint?.isActive = false
+            if editing {
+                self.fullNameCardTopConstraint = self.fullNameCardView.topAnchor.constraint(equalTo: self.editActionsStackView.bottomAnchor, constant: 20)
+            } else {
+                self.fullNameCardTopConstraint = self.fullNameCardView.topAnchor.constraint(equalTo: self.nameStackView.bottomAnchor, constant: 32)
+            }
+            self.fullNameCardTopConstraint?.isActive = true
+            self.view.layoutIfNeeded()
         }
         
         if editing {
