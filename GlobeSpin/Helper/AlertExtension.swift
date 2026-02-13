@@ -37,4 +37,12 @@ extension UIViewController {
         alert.addAction(UIAlertAction(title: actionTitle, style: .default))
         present(alert, animated: true)
     }
+    
+    func showSuccessAlert(message: String, actionTitle: String = "OK", completion: @escaping () -> Void) {
+        let alert = UIAlertController(title: "Success", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: actionTitle, style: .default) { _ in
+            completion()
+        })
+        present(alert, animated: true)
+    }
 }

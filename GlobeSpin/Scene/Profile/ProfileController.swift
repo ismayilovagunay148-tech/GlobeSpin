@@ -8,391 +8,216 @@
 import UIKit
 
 class ProfileController: BaseController {
-    
+
     private let viewModel: ProfileViewModel
-    private var isEditingName = false
-    
-    private var fullNameCardTopConstraint: NSLayoutConstraint?
-    
-    private let scrollView: UIScrollView = {
-        let sv = UIScrollView()
-        sv.translatesAutoresizingMaskIntoConstraints = false
-        sv.showsVerticalScrollIndicator = false
-        sv.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
-        return sv
-    }()
-    
-    private let contentView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(systemName: "person.circle.fill")
-        iv.contentMode = .scaleAspectFill
-        iv.tintColor = .systemGray3
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    private let nameStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 8
-        stack.alignment = .center
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
-    
-    private let nameLabel: UILabel = {
+    private let imageStorageService = ImageStorageService.shared
+    private let authService = AuthService.shared
+
+    private struct MenuItem {
+        let icon: UIImage?
+        let title: String
+        let action: () -> Void
+    }
+
+    private var menuItems: [MenuItem] = []
+
+    private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = ""
-        label.font = .systemFont(ofSize: 20, weight: .semibold)
-        label.textColor = .label
+        label.text = "Profile"
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
+        label.textColor = .black
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private let nameTextField: UITextField = {
-        let tf = UITextField()
-        tf.font = .systemFont(ofSize: 20, weight: .semibold)
-        tf.textColor = .label
-        tf.textAlignment = .center
-        tf.borderStyle = .roundedRect
-        tf.isHidden = true
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        return tf
+
+    private let profileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.backgroundColor = UIColor(red: 0.85, green: 0.85, blue: 0.85, alpha: 1.0)
+        let config = UIImage.SymbolConfiguration(pointSize: 60, weight: .regular)
+        iv.image = UIImage(systemName: "person.fill", withConfiguration: config)
+        iv.tintColor = .white
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
-    
-    private let editButton: UIButton = {
-        let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-        let image = UIImage(systemName: "pencil.circle.fill", withConfiguration: config)
-        button.setImage(image, for: .normal)
-        button.tintColor = .systemGray
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let editActionsStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 12
-        stack.distribution = .fillEqually
-        stack.isHidden = true
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
-    
-    private let saveButton: UIButton = {
-        let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
-        let image = UIImage(systemName: "checkmark.circle.fill", withConfiguration: config)
-        button.setImage(image, for: .normal)
-        button.tintColor = .systemGreen
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let cancelButton: UIButton = {
-        let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
-        let image = UIImage(systemName: "xmark.circle.fill", withConfiguration: config)
-        button.setImage(image, for: .normal)
-        button.tintColor = .systemRed
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let fullNameCardView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        view.layer.shadowOpacity = 0.05
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let fullNameHeaderLabel: UILabel = {
+
+    private let nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Full Name"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .systemGray
+        label.font = .systemFont(ofSize: 24, weight: .bold)
+        label.textColor = .black
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private let fullNameValueLabel: UILabel = {
-        let label = UILabel()
-        label.text = ""
-        label.font = .systemFont(ofSize: 17, weight: .regular)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+
+    private let tableView: UITableView = {
+        let tv = UITableView(frame: .zero, style: .plain)
+        tv.backgroundColor = .white
+        tv.separatorStyle = .none
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
     }()
-    
-    private let emailCardView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        view.layer.shadowOpacity = 0.05
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let emailHeaderLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Email"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .systemGray
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let emailValueLabel: UILabel = {
-        let label = UILabel()
-        label.text = ""
-        label.font = .systemFont(ofSize: 17, weight: .regular)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let logoutButton: UIButton = {
+
+    private lazy var logoutButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Log Out", for: .normal)
-        button.setTitleColor(.systemRed, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.setTitleColor(UIColor(red: 0.9, green: 0.3, blue: 0.3, alpha: 1.0), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         button.backgroundColor = .white
         button.layer.cornerRadius = 25
-        button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor.systemRed.cgColor
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor(red: 0.9, green: 0.3, blue: 0.3, alpha: 1.0).cgColor
+        button.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
-        
-        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
-        let image = UIImage(systemName: "rectangle.portrait.and.arrow.right", withConfiguration: config)
-        button.setImage(image, for: .normal)
-        button.tintColor = .systemRed
-        
         return button
     }()
-    
+
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .gray
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+
     init(viewModel: ProfileViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
-        title = "Profile"
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
+        view.backgroundColor = .white
+        setupMenuItems()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
         viewModel.loadUserData()
     }
-    
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         profileImageView.layer.cornerRadius = profileImageView.bounds.width / 2
     }
-    
+
     override func configureUI() {
-        logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
-        editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
-        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
-        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        
-        nameTextField.delegate = self
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(ProfileCell.self, forCellReuseIdentifier: ProfileCell.identifier)
     }
-    
+
     override func configureConstraints() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        
-        nameStackView.addArrangedSubview(nameLabel)
-        nameStackView.addArrangedSubview(editButton)
-        
-        editActionsStackView.addArrangedSubview(saveButton)
-        editActionsStackView.addArrangedSubview(cancelButton)
-        
-        fullNameCardView.addSubview(fullNameHeaderLabel)
-        fullNameCardView.addSubview(fullNameValueLabel)
-        
-        emailCardView.addSubview(emailHeaderLabel)
-        emailCardView.addSubview(emailValueLabel)
-        
-        [profileImageView, nameStackView, nameTextField, editActionsStackView,
-         fullNameCardView, emailCardView, logoutButton].forEach { contentView.addSubview($0) }
-        
+        let headerView = UIView()
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+
+        [titleLabel, profileImageView, nameLabel].forEach { headerView.addSubview($0) }
+
+        view.addSubview(headerView)
+        view.addSubview(tableView)
+        view.addSubview(logoutButton)
+        view.addSubview(loadingIndicator)
+
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            profileImageView.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 40),
-            profileImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            profileImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.25),
-            profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor),
-            
-            nameStackView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 16),
-            nameStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            
-            editButton.widthAnchor.constraint(equalToConstant: 24),
-            editButton.heightAnchor.constraint(equalToConstant: 24),
-            
-            nameTextField.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 16),
-            nameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
-            nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
-            nameTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            editActionsStackView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 62),
-            editActionsStackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            editActionsStackView.widthAnchor.constraint(equalToConstant: 80),
-            
-            saveButton.widthAnchor.constraint(equalToConstant: 34),
-            saveButton.heightAnchor.constraint(equalToConstant: 34),
-            cancelButton.widthAnchor.constraint(equalToConstant: 34),
-            cancelButton.heightAnchor.constraint(equalToConstant: 34),
-            
-            fullNameCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            fullNameCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            fullNameCardView.heightAnchor.constraint(equalToConstant: 80),
-            
-            fullNameHeaderLabel.topAnchor.constraint(equalTo: fullNameCardView.topAnchor, constant: 16),
-            fullNameHeaderLabel.leadingAnchor.constraint(equalTo: fullNameCardView.leadingAnchor, constant: 16),
-            
-            fullNameValueLabel.topAnchor.constraint(equalTo: fullNameHeaderLabel.bottomAnchor, constant: 8),
-            fullNameValueLabel.leadingAnchor.constraint(equalTo: fullNameCardView.leadingAnchor, constant: 16),
-            fullNameValueLabel.trailingAnchor.constraint(equalTo: fullNameCardView.trailingAnchor, constant: -16),
-            
-            emailCardView.topAnchor.constraint(equalTo: fullNameCardView.bottomAnchor, constant: 16),
-            emailCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            emailCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            emailCardView.heightAnchor.constraint(equalToConstant: 80),
-            
-            emailHeaderLabel.topAnchor.constraint(equalTo: emailCardView.topAnchor, constant: 16),
-            emailHeaderLabel.leadingAnchor.constraint(equalTo: emailCardView.leadingAnchor, constant: 16),
-            
-            emailValueLabel.topAnchor.constraint(equalTo: emailHeaderLabel.bottomAnchor, constant: 8),
-            emailValueLabel.leadingAnchor.constraint(equalTo: emailCardView.leadingAnchor, constant: 16),
-            emailValueLabel.trailingAnchor.constraint(equalTo: emailCardView.trailingAnchor, constant: -16),
-            
-            logoutButton.topAnchor.constraint(equalTo: emailCardView.bottomAnchor, constant: 28),
-            logoutButton.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            logoutButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            titleLabel.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 10),
+            titleLabel.centerXAnchor.constraint(equalTo: headerView.centerXAnchor),
+
+            profileImageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
+            profileImageView.centerXAnchor.constraint(equalTo: headerView.centerXAnchor),
+            profileImageView.widthAnchor.constraint(equalToConstant: 140),
+            profileImageView.heightAnchor.constraint(equalToConstant: 140),
+
+            nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 20),
+            nameLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 24),
+            nameLabel.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -24),
+            nameLabel.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
+
+            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 50),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            tableView.bottomAnchor.constraint(equalTo: logoutButton.topAnchor, constant: -24),
+
+            logoutButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            logoutButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            logoutButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -150),
             logoutButton.heightAnchor.constraint(equalToConstant: 50),
-            logoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30)
+
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-        
-        fullNameCardTopConstraint = fullNameCardView.topAnchor.constraint(equalTo: nameStackView.bottomAnchor, constant: 32)
-        fullNameCardTopConstraint?.isActive = true
     }
-    
+
     override func configureViewModel() {
         viewModel.viewState = { [weak self] state in
             self?.handleViewState(state)
         }
     }
-    
+
+    private func setupMenuItems() {
+        menuItems = [
+            MenuItem(icon: UIImage(systemName: "person.fill"), title: "Profile") { [weak self] in
+                self?.viewModel.navigateToEditProfile()
+            },
+            MenuItem(icon: UIImage(systemName: "doc.text.fill"), title: "Terms of service") { [weak self] in
+                self?.viewModel.navigateToTermsOfService()
+            },
+            MenuItem(icon: UIImage(systemName: "shield.fill"), title: "Privacy") { [weak self] in
+                self?.viewModel.navigateToPrivacyPolicy()
+            }
+        ]
+    }
+
     private func handleViewState(_ state: ProfileViewModel.ViewState) {
         switch state {
         case .idle:
             break
+
         case .loading:
-            break
-        case .success(let fullName, let email):
-            updateUI(fullName: fullName, email: email)
-        case .error(let errorMessage):
-            showAlert(message: errorMessage)
+            loadingIndicator.startAnimating()
+
+        case .success(let fullName, _):
+            loadingIndicator.stopAnimating()
+            nameLabel.text = fullName
+            loadProfileImage()
+
+        case .error(let message):
+            loadingIndicator.stopAnimating()
+            showAlert(message: message)
+
         case .updateSuccess:
-            showSuccessAlert(message: "Your name has been updated")
-            setEditMode(false)
+            loadingIndicator.stopAnimating()
             viewModel.loadUserData(forceRefresh: true)
         }
     }
-    
-    private func updateUI(fullName: String, email: String) {
-        nameLabel.text = fullName
-        nameTextField.text = fullName
-        fullNameValueLabel.text = fullName
-        emailValueLabel.text = email
-    }
-    
-    private func setEditMode(_ editing: Bool) {
-        isEditingName = editing
-        
-        UIView.animate(withDuration: 0.3) {
-            self.nameStackView.isHidden = editing
-            self.nameTextField.isHidden = !editing
-            self.editActionsStackView.isHidden = !editing
-            
-            self.fullNameCardTopConstraint?.isActive = false
-            if editing {
-                self.fullNameCardTopConstraint = self.fullNameCardView.topAnchor.constraint(equalTo: self.editActionsStackView.bottomAnchor, constant: 20)
-            } else {
-                self.fullNameCardTopConstraint = self.fullNameCardView.topAnchor.constraint(equalTo: self.nameStackView.bottomAnchor, constant: 32)
+
+    private func loadProfileImage() {
+        guard let userId = authService.getCurrentUserId() else { return }
+
+        imageStorageService.downloadProfileImage(userId: userId) { [weak self] image, _ in
+            DispatchQueue.main.async {
+                if let image = image {
+                    self?.profileImageView.image = image
+                }
             }
-            self.fullNameCardTopConstraint?.isActive = true
-            self.view.layoutIfNeeded()
-        }
-        
-        if editing {
-            nameTextField.becomeFirstResponder()
-        } else {
-            nameTextField.resignFirstResponder()
         }
     }
-    
-    @objc private func editButtonTapped() {
-        setEditMode(true)
-    }
-    
-    @objc private func saveButtonTapped() {
-        guard let newName = nameTextField.text?.trimmingCharacters(in: .whitespaces),
-              !newName.isEmpty else {
-            showAlert(message: "Please enter a valid name")
-            return
-        }
-        
-        viewModel.updateUserName(newName: newName)
-    }
-    
-    @objc private func cancelButtonTapped() {
-        nameTextField.text = nameLabel.text
-        setEditMode(false)
-    }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
+
     @objc private func logoutButtonTapped() {
         showConfirmationAlert(
             title: "Log Out",
@@ -405,9 +230,29 @@ class ProfileController: BaseController {
     }
 }
 
-extension ProfileController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        saveButtonTapped()
-        return true
+extension ProfileController: UITableViewDataSource {
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return menuItems.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ProfileCell.identifier, for: indexPath) as? ProfileCell else {
+            return UITableViewCell()
+        }
+        let item = menuItems[indexPath.row]
+        cell.configure(icon: item.icon, title: item.title)
+        return cell
+    }
+}
+
+extension ProfileController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        menuItems[indexPath.row].action()
     }
 }

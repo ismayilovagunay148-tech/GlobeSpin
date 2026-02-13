@@ -20,6 +20,21 @@ class ProfileCoordinator: Coordinator {
         navigationController.show(vc, sender: nil)
     }
     
+    func showEditProfile(viewModel: ProfileViewModel) {
+        let vc = EditProfileController(viewModel: viewModel)
+        navigationController.show(vc, sender: nil)
+    }
+    
+    func showTermsOfService() {
+        let vc = TermsOfServiceController()
+        navigationController.show(vc, sender: nil)
+    }
+    
+    func showPrivacyPolicy() {
+        let vc = PrivacyPolicyController()
+        navigationController.show(vc, sender: nil)
+    }
+    
     func showSplash() {
         guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate,
               let window = sceneDelegate.window else {

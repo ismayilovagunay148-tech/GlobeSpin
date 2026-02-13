@@ -67,6 +67,18 @@ final class ProfileViewModel {
         }
     }
     
+    func navigateToEditProfile() {
+        coordinator.showEditProfile(viewModel: self)
+    }
+    
+    func navigateToTermsOfService() {
+        coordinator.showTermsOfService()
+    }
+    
+    func navigateToPrivacyPolicy() {
+        coordinator.showPrivacyPolicy()
+    }
+    
     func logout() {
         viewState?(.loading)
         
